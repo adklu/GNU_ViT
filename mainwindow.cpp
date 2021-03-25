@@ -9,7 +9,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-QString version= "v060";
+QString version= "v0109";
 QString license = "GNU_ViT - Video Editor Tool\
         \n\
 \n\
@@ -44,6 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA";
 #include <QStringList>
 #include <QProcess>
 
+#include <QInputDialog>
+
 #include <QtMultimediaWidgets/QVideoWidget>
 #include <QtMultimedia/QMediaPlayer>
 
@@ -51,6 +53,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA";
 #include <iomanip>
 //#include <QTimer>
 //#include <QMediaMetaData>
+
+
+
 
 
 QMediaPlayer *player;
@@ -1080,7 +1085,7 @@ void MainWindow::to24fps()
 
    {
         QMessageBox msgBox;
-        msgBox.setText("Error: File Name/Path or Start/End Point Error.");
+        msgBox.setText("Error: File Name/Path Error.");
         msgBox.exec();
     }
 
@@ -1170,7 +1175,7 @@ void MainWindow::to30fps()
 
    {
         QMessageBox msgBox;
-        msgBox.setText("Error: File Name/Path or Start/End Point Error.");
+        msgBox.setText("Error: File Name/Path Error.");
         msgBox.exec();
     }
 
@@ -1258,7 +1263,7 @@ void MainWindow::to60fps()
 
    {
         QMessageBox msgBox;
-        msgBox.setText("Error: File Name/Path or Start/End Point Error.");
+        msgBox.setText("Error: File Name/Path Error.");
         msgBox.exec();
     }
 
@@ -1345,7 +1350,7 @@ void MainWindow::towav()
 
    {
         QMessageBox msgBox;
-        msgBox.setText("Error: File Name/Path or Start/End Point Error.");
+        msgBox.setText("Error: File Name/Path Error.");
         msgBox.exec();
     }
 
@@ -1435,7 +1440,7 @@ void MainWindow::tofullhd()
 
    {
         QMessageBox msgBox;
-        msgBox.setText("Error: File Name/Path or Start/End Point Error.");
+        msgBox.setText("Error: File Name/Path Error.");
         msgBox.exec();
     }
 
@@ -1509,6 +1514,107 @@ void MainWindow::tofullhd()
 }
 
 
+//to4K
+
+
+void MainWindow::to4K()
+{
+
+
+    QByteArray array;
+    char* filePathfromqs;
+
+        //qDebug() << "--------------filePath---------- " << filePath;
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+     QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+     qDebug() << "-------savefileName------- " << savefileName ;
+
+    if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+   {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Name/Path Error.");
+        msgBox.exec();
+    }
+
+
+
+     else
+    {
+
+
+         // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+           ui->statusBar->showMessage("Please wait...");
+
+    //original file
+        array = vvfilePath.toLocal8Bit();
+        filePathfromqs = array.data();
+        qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+     //name of saved file
+         QByteArray array2 = savefileName.toLocal8Bit();
+         char* savefileNamefromqs = array2.data();
+         qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+    char result[50000];
+
+     strcpy(result,"ffmpeg -y -i '");
+     strcat(result,filePathfromqs);
+      strcat(result,"' -vf scale=3840:2160:flags=lanczos,setsar=1 -c:v libx264 -crf 15 -preset veryfast -c:a copy '");
+       strcat(result,savefileNamefromqs);
+        strcat(result,"'");
+
+       // ffmpeg -y -i MAH00642.MP4 -vf "scale=1920:1080:flags=lanczos,setsar=1" -c:v libx264 -crf 15 -preset veryfast -c:a copy MAH00642_1920crf15.MP4
+
+
+         qDebug() << "-------------------result--------------- " << result;
+
+
+
+        //if(system(0) != 0)
+         if(system(result) != 0)
+        {
+            qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("Error: ffmpeg failed.");
+            msgBox.exec();
+        }
+        else
+        {
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("File saved.");
+            msgBox.exec();
+        }
+
+}
+
+
+
+
+
+}
+
+
+
+//end to4K
+
 
 void MainWindow::tomp4aac()
 {
@@ -1532,7 +1638,7 @@ void MainWindow::tomp4aac()
 
    {
         QMessageBox msgBox;
-        msgBox.setText("Error: File Name/Path or Start/End Point Error.");
+        msgBox.setText("Error: File Name/Path Error.");
         msgBox.exec();
     }
 
@@ -1631,7 +1737,7 @@ void MainWindow::replaceaudio()
 
    {
         QMessageBox msgBox;
-        msgBox.setText("Error: File Name/Path or Start/End Point Error.");
+        msgBox.setText("Error: File Name/Path Error.");
         msgBox.exec();
     }
 
@@ -1849,6 +1955,2076 @@ void MainWindow::titles()
 
 
 
+//crop from bottom right
+void MainWindow::crop()
+{
+
+
+    bool ok;
+       int i = QInputDialog::getInt(this, tr("Crop"),
+                                 tr("Percentage:"), 25, 50, 99, 1, &ok);
+    if (ok)
+    {
+        //integerLabel->setText(tr("%1%").arg(i));
+
+         qDebug() << "+++++++++++++++++++++++++CROP   " << i;
+
+//         80%
+//
+//         x: of 1920: 1536
+//         y: of 1080: 864
+
+         double ii=i;
+
+
+         float x= (1920.0/100.0)*ii;
+          double y= (1080.0/100.0)*ii;
+
+           qDebug() << "++++++++   x   +++++++++++++++++CROP   " << x;
+
+            qDebug() << "++++++++   y   +++++++++++++++++CROP   " << y;
+
+
+//************
+
+
+
+            QByteArray array;
+            char* filePathfromqs;
+
+                //qDebug() << "--------------filePath---------- " << filePath;
+
+            QString pname = ui->plainTextEdit->toPlainText();
+            QString fname = ui->plainTextEdit_2->toPlainText();
+            QString savefileName = pname + "/" + fname;
+
+             QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+
+             qDebug() << "-------savefileName------- " << savefileName ;
+
+            if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+
+           {
+                QMessageBox msgBox;
+                msgBox.setText("Error: File Name/Path Error.");
+                msgBox.exec();
+            }
+
+
+
+             else
+            {
+
+
+                 // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+                   ui->statusBar->showMessage("Crop Preview");
+
+            //original file
+                array = vvfilePath.toLocal8Bit();
+                filePathfromqs = array.data();
+                qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+             //name of saved file
+                 QByteArray array2 = savefileName.toLocal8Bit();
+                 char* savefileNamefromqs = array2.data();
+                 qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+
+
+                     //STARTPOINT
+                           //float secpos= (iposstart*60);
+                           float secpos= x;
+                            qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream;
+                            stream << std::fixed << std::setprecision(3) << secpos;
+                            std::string str = stream.str();
+                        const char* startvar = str.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+                     //ENDPOINT
+                         float secposend= y ;
+                          qDebug() << "-------------float secposend---------- " << secposend ;
+                       //format in seconds.ms (3 digits ms)
+                          std::stringstream stream2;
+                          stream2 << std::fixed << std::setprecision(3) << secposend;
+                          std::string str2 = stream2.str();
+                      const char* endvar = str2.c_str();
+                     qDebug() << "------------------endvar-------------- " << endvar;
+
+
+            char result[50000];
+
+             strcpy(result,"ffplay -i '");
+             strcat(result,filePathfromqs);
+              strcat(result,"' -vf \"crop=");
+              strcat(result,startvar);
+              strcat(result,":");
+              strcat(result,endvar);
+              strcat(result,":0:0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1\"");
+
+
+
+                      qDebug() << "-------crop------------result--------------- " << result;
+
+
+                      if(system(result) != 0)
+                     {
+                         qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                         ui->statusBar->showMessage("");
+                         QMessageBox msgBox;
+                         msgBox.setText("Error: ffmpeg failed.");
+                         msgBox.exec();
+                     }
+                     else
+                     {
+                         ui->statusBar->showMessage("");
+//                         QMessageBox msgBox;
+//                         msgBox.setText("???");
+//                         msgBox.exec();
+
+                         QMessageBox::StandardButton reply;
+                          reply = QMessageBox::question(this, "Crop", "Save?",QMessageBox::Yes|QMessageBox::No);
+                          if (reply == QMessageBox::Yes)
+                          {
+                             ui->statusBar->showMessage("Please wait...");
+                         //saving crop
+
+                              char result2[50000];
+
+                               strcpy(result2,"ffmpeg -y -i '");
+                               strcat(result2,filePathfromqs);
+                                strcat(result2,"' -filter:v \"crop=");
+                                strcat(result2,startvar);
+                                strcat(result2,":");
+                                strcat(result2,endvar);
+                                strcat(result2,":0:0,scale=1920:1080:flags=lanczos,setsar=1\" -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
+                                strcat(result2,savefileNamefromqs);
+                                strcat(result2,"'");
+
+
+//ffmpeg -y -i mkv.mkv -filter:v "crop=1920:1030:0:50,scale=1920:1080:flags=lanczos,setsar=1" -c:v libx264 -preset veryfast -crf 15 -c:a copy mkv_crop50topHQ2scaled.mkv
+
+
+                                        qDebug() << "-------crop------------result2--------------- " << result2;
+
+
+                                        if(system(result2) != 0)
+                                       {
+                                           qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("Error: ffmpeg failed.");
+                                           msgBox.exec();
+                                       }
+                                       else
+                                       {
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("File saved.");
+                                           msgBox.exec();
+                                       }
+
+
+
+
+                          //end: saving crop
+
+
+
+
+                          } else
+                          {
+                              QMessageBox msgBox;
+                              msgBox.setText("Crop not saved.");
+                              msgBox.exec();
+                          }
+
+                     }
+
+
+    }
+//***********
+
+
+
+//ffplay -i mkv.mkv -vf "crop=1536:864:0:0,drawtext=text='%{pts\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1"
+
+
+
+
+
+
+    }
+
+
+
+}
+
+
+
+//crop bottom left
+
+
+void MainWindow::cropbottomleft()
+{
+
+
+    bool ok;
+       int i = QInputDialog::getInt(this, tr("Crop"),
+                                 tr("Percentage:"), 25, 50, 99, 1, &ok);
+    if (ok)
+    {
+        //integerLabel->setText(tr("%1%").arg(i));
+
+         qDebug() << "+++++++++++++++++++++++++CROP   " << i;
+
+//         80%
+//
+//         x: of 1920: 1536
+//         y: of 1080: 864
+//         xdelta = 1920 - 1536
+
+         double ii=i;
+
+
+         double x= (1920.0/100.0)*ii;
+          double y= (1080.0/100.0)*ii;
+          double xdelta= 1920.0-x;
+
+           qDebug() << "++++++++   x   +++++++++++++++++CROP   " << x;
+
+            qDebug() << "++++++++   y   +++++++++++++++++CROP   " << y;
+
+             qDebug() << "++++++++   xdelta   +++++++++++++++++CROP   " << xdelta;
+
+
+//************
+
+
+
+            QByteArray array;
+            char* filePathfromqs;
+
+                //qDebug() << "--------------filePath---------- " << filePath;
+
+            QString pname = ui->plainTextEdit->toPlainText();
+            QString fname = ui->plainTextEdit_2->toPlainText();
+            QString savefileName = pname + "/" + fname;
+
+             QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+
+             qDebug() << "-------savefileName------- " << savefileName ;
+
+            if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+
+           {
+                QMessageBox msgBox;
+                msgBox.setText("Error: File Name/Path Error.");
+                msgBox.exec();
+            }
+
+
+
+             else
+            {
+
+
+                 // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+                   ui->statusBar->showMessage("Crop Preview");
+
+            //original file
+                array = vvfilePath.toLocal8Bit();
+                filePathfromqs = array.data();
+                qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+             //name of saved file
+                 QByteArray array2 = savefileName.toLocal8Bit();
+                 char* savefileNamefromqs = array2.data();
+                 qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+
+
+                     //STARTPOINT
+                           //float secpos= (iposstart*60);
+                           float secpos= x;
+                            qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream;
+                            stream << std::fixed << std::setprecision(3) << secpos;
+                            std::string str = stream.str();
+                        const char* startvar = str.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+                     //ENDPOINT
+                         float secposend= y ;
+                          qDebug() << "-------------float secposend---------- " << secposend ;
+                       //format in seconds.ms (3 digits ms)
+                          std::stringstream stream2;
+                          stream2 << std::fixed << std::setprecision(3) << secposend;
+                          std::string str2 = stream2.str();
+                      const char* endvar = str2.c_str();
+                     qDebug() << "------------------endvar-------------- " << endvar;
+
+
+                     //xdelta
+                           //float secpos= (iposstart*60);
+                           float secpos2= xdelta;
+                            qDebug() << "-------------float secpos2= xdelta; ---------- " << secpos2 ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream3;
+                            stream3 << std::fixed << std::setprecision(3) << secpos2;
+                            std::string str3 = stream3.str();
+                        const char* startvar2 = str3.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar2;
+
+
+            char result[50000];
+
+             strcpy(result,"ffplay -i '");
+             strcat(result,filePathfromqs);
+              strcat(result,"' -vf \"crop=");
+              strcat(result,startvar);
+              strcat(result,":");
+              strcat(result,endvar);
+               strcat(result,":");
+                strcat(result,startvar2);
+             // strcat(result,":0:0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1\"");
+            strcat(result,":0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1\"");
+
+
+                      qDebug() << "-------crop------------result--------------- " << result;
+
+
+                      if(system(result) != 0)
+                     {
+                         qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                         ui->statusBar->showMessage("");
+                         QMessageBox msgBox;
+                         msgBox.setText("Error: ffmpeg failed.");
+                         msgBox.exec();
+                     }
+                     else
+                     {
+                         ui->statusBar->showMessage("");
+//                         QMessageBox msgBox;
+//                         msgBox.setText("???");
+//                         msgBox.exec();
+
+                         QMessageBox::StandardButton reply;
+                          reply = QMessageBox::question(this, "Crop", "Save?",QMessageBox::Yes|QMessageBox::No);
+                          if (reply == QMessageBox::Yes)
+                          {
+                                ui->statusBar->showMessage("Please wait...");
+                         //saving crop
+
+                              char result2[50000];
+
+                               strcpy(result2,"ffmpeg -y -i '");
+                               strcat(result2,filePathfromqs);
+                                strcat(result2,"' -filter:v \"crop=");
+                                strcat(result2,startvar);
+                                strcat(result2,":");
+                                strcat(result2,endvar);
+                                strcat(result2,":");
+                                 strcat(result2,startvar2);
+                                strcat(result2,":0,scale=1920:1080:flags=lanczos,setsar=1\" -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
+                                strcat(result2,savefileNamefromqs);
+                                strcat(result2,"'");
+
+
+//ffmpeg -y -i mkv.mkv -filter:v "crop=1920:1030:0:50,scale=1920:1080:flags=lanczos,setsar=1" -c:v libx264 -preset veryfast -crf 15 -c:a copy mkv_crop50topHQ2scaled.mkv
+
+
+                                        qDebug() << "-------crop------------result2--------------- " << result2;
+
+
+                                        if(system(result2) != 0)
+                                       {
+                                           qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("Error: ffmpeg failed.");
+                                           msgBox.exec();
+                                       }
+                                       else
+                                       {
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("File saved.");
+                                           msgBox.exec();
+                                       }
+
+
+
+
+                          //end: saving crop
+
+
+
+
+                          } else
+                          {
+                              QMessageBox msgBox;
+                              msgBox.setText("Crop not saved.");
+                              msgBox.exec();
+                          }
+
+                     }
+
+
+    }
+//***********
+
+
+
+//ffplay -i mkv.mkv -vf "crop=1536:864:0:0,drawtext=text='%{pts\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1"
+
+
+
+
+
+
+    }
+
+
+
+}
+
+
+//END crop bottom left
+//-----------------------
+
+
+//crop top right
+
+void MainWindow::croptopright()
+{
+
+
+    bool ok;
+       int i = QInputDialog::getInt(this, tr("Crop"),
+                                 tr("Percentage:"), 25, 50, 99, 1, &ok);
+    if (ok)
+    {
+        //integerLabel->setText(tr("%1%").arg(i));
+
+         qDebug() << "+++++++++++++++++++++++++CROP   " << i;
+
+//         80%
+//
+//         x: of 1920: 1536
+//         y: of 1080: 864
+//         xdelta = 1920 - 1536
+
+         double ii=i;
+
+
+         double x= (1920.0/100.0)*ii;
+          double y= (1080.0/100.0)*ii;
+          double ydelta= 1080.0-y;
+
+           qDebug() << "++++++++   x   +++++++++++++++++CROP   " << x;
+
+            qDebug() << "++++++++   y   +++++++++++++++++CROP   " << y;
+
+             qDebug() << "++++++++   ydelta   +++++++++++++++++CROP   " << ydelta;
+
+
+//************
+
+
+
+            QByteArray array;
+            char* filePathfromqs;
+
+                //qDebug() << "--------------filePath---------- " << filePath;
+
+            QString pname = ui->plainTextEdit->toPlainText();
+            QString fname = ui->plainTextEdit_2->toPlainText();
+            QString savefileName = pname + "/" + fname;
+
+             QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+
+             qDebug() << "-------savefileName------- " << savefileName ;
+
+            if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+
+           {
+                QMessageBox msgBox;
+                msgBox.setText("Error: File Name/Path Error.");
+                msgBox.exec();
+            }
+
+
+
+             else
+            {
+
+
+                 // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+                   ui->statusBar->showMessage("Crop Preview");
+
+            //original file
+                array = vvfilePath.toLocal8Bit();
+                filePathfromqs = array.data();
+                qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+             //name of saved file
+                 QByteArray array2 = savefileName.toLocal8Bit();
+                 char* savefileNamefromqs = array2.data();
+                 qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+
+
+                     //STARTPOINT
+                           //float secpos= (iposstart*60);
+                           float secpos= x;
+                            qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream;
+                            stream << std::fixed << std::setprecision(3) << secpos;
+                            std::string str = stream.str();
+                        const char* startvar = str.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+                     //ENDPOINT
+                         float secposend= y ;
+                          qDebug() << "-------------float secposend---------- " << secposend ;
+                       //format in seconds.ms (3 digits ms)
+                          std::stringstream stream2;
+                          stream2 << std::fixed << std::setprecision(3) << secposend;
+                          std::string str2 = stream2.str();
+                      const char* endvar = str2.c_str();
+                     qDebug() << "------------------endvar-------------- " << endvar;
+
+
+                     //ydelta
+                           //float secpos= (iposstart*60);
+                           float secpos2= ydelta;
+                            qDebug() << "-------------float secpos2= xdelta; ---------- " << secpos2 ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream3;
+                            stream3 << std::fixed << std::setprecision(3) << secpos2;
+                            std::string str3 = stream3.str();
+                        const char* startvar2 = str3.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar2;
+
+
+            char result[50000];
+
+             strcpy(result,"ffplay -i '");
+             strcat(result,filePathfromqs);
+              strcat(result,"' -vf \"crop=");
+              strcat(result,startvar);
+              strcat(result,":");
+              strcat(result,endvar);
+               strcat(result,":0:");
+                strcat(result,startvar2);
+             // strcat(result,":0:0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1\"");
+            strcat(result,",drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1\"");
+
+
+                      qDebug() << "-------crop------------result--------------- " << result;
+
+
+                      if(system(result) != 0)
+                     {
+                         qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                         ui->statusBar->showMessage("");
+                         QMessageBox msgBox;
+                         msgBox.setText("Error: ffmpeg failed.");
+                         msgBox.exec();
+                     }
+                     else
+                     {
+                         ui->statusBar->showMessage("");
+//                         QMessageBox msgBox;
+//                         msgBox.setText("???");
+//                         msgBox.exec();
+
+                         QMessageBox::StandardButton reply;
+                          reply = QMessageBox::question(this, "Crop", "Save?",QMessageBox::Yes|QMessageBox::No);
+                          if (reply == QMessageBox::Yes)
+                          {
+                                ui->statusBar->showMessage("Please wait...");
+                         //saving crop
+
+                              char result2[50000];
+
+                               strcpy(result2,"ffmpeg -y -i '");
+                               strcat(result2,filePathfromqs);
+                                strcat(result2,"' -filter:v \"crop=");
+                                strcat(result2,startvar);
+                                strcat(result2,":");
+                                strcat(result2,endvar);
+                                strcat(result2,":0:");
+                                 strcat(result2,startvar2);
+                                strcat(result2,",scale=1920:1080:flags=lanczos,setsar=1\" -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
+                                strcat(result2,savefileNamefromqs);
+                                strcat(result2,"'");
+
+
+//ffmpeg -y -i mkv.mkv -filter:v "crop=1920:1030:0:50,scale=1920:1080:flags=lanczos,setsar=1" -c:v libx264 -preset veryfast -crf 15 -c:a copy mkv_crop50topHQ2scaled.mkv
+
+
+                                        qDebug() << "-------crop------------result2--------------- " << result2;
+
+
+                                        if(system(result2) != 0)
+                                       {
+                                           qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("Error: ffmpeg failed.");
+                                           msgBox.exec();
+                                       }
+                                       else
+                                       {
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("File saved.");
+                                           msgBox.exec();
+                                       }
+
+
+
+
+                          //end: saving crop
+
+
+
+
+                          } else
+                          {
+                              QMessageBox msgBox;
+                              msgBox.setText("Crop not saved.");
+                              msgBox.exec();
+                          }
+
+                     }
+
+
+    }
+//***********
+
+
+
+//ffplay -i mkv.mkv -vf "crop=1536:864:0:0,drawtext=text='%{pts\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1"
+
+
+
+
+
+
+    }
+
+
+
+}
+
+
+//END top right
+//-----------------------
+
+
+
+//crop top left
+
+void MainWindow::croptopleft()
+{
+
+
+
+    bool ok;
+       int i = QInputDialog::getInt(this, tr("Crop"),
+                                 tr("Percentage:"), 25, 50, 99, 1, &ok);
+    if (ok)
+    {
+        //integerLabel->setText(tr("%1%").arg(i));
+
+         qDebug() << "+++++++++++++++++++++++++CROP   " << i;
+
+//         80%
+//
+//         x: of 1920: 1536
+//         y: of 1080: 864
+//         xdelta = 1920 - 1536
+
+         double ii=i;
+
+
+         double x= (1920.0/100.0)*ii;
+          double y= (1080.0/100.0)*ii;
+          double xdelta= 1920.0-x;
+          double ydelta= 1080.0-y;
+
+           qDebug() << "++++++++   x   +++++++++++++++++CROP   " << x;
+
+            qDebug() << "++++++++   y   +++++++++++++++++CROP   " << y;
+
+              qDebug() << "++++++++   xdelta   +++++++++++++++++CROP   " << xdelta;
+             qDebug() << "++++++++   ydelta   +++++++++++++++++CROP   " << ydelta;
+
+
+//************
+
+
+
+            QByteArray array;
+            char* filePathfromqs;
+
+                //qDebug() << "--------------filePath---------- " << filePath;
+
+            QString pname = ui->plainTextEdit->toPlainText();
+            QString fname = ui->plainTextEdit_2->toPlainText();
+            QString savefileName = pname + "/" + fname;
+
+             QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+
+             qDebug() << "-------savefileName------- " << savefileName ;
+
+            if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+
+           {
+                QMessageBox msgBox;
+                msgBox.setText("Error: File Name/Path Error.");
+                msgBox.exec();
+            }
+
+
+
+             else
+            {
+
+
+                 // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+                   ui->statusBar->showMessage("Crop Preview");
+
+            //original file
+                array = vvfilePath.toLocal8Bit();
+                filePathfromqs = array.data();
+                qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+             //name of saved file
+                 QByteArray array2 = savefileName.toLocal8Bit();
+                 char* savefileNamefromqs = array2.data();
+                 qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+
+
+                     //STARTPOINT
+                           //float secpos= (iposstart*60);
+                           float secpos= x;
+                            qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream;
+                            stream << std::fixed << std::setprecision(3) << secpos;
+                            std::string str = stream.str();
+                        const char* startvar = str.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+                     //ENDPOINT
+                         float secposend= y ;
+                          qDebug() << "-------------float secposend---------- " << secposend ;
+                       //format in seconds.ms (3 digits ms)
+                          std::stringstream stream2;
+                          stream2 << std::fixed << std::setprecision(3) << secposend;
+                          std::string str2 = stream2.str();
+                      const char* endvar = str2.c_str();
+                     qDebug() << "------------------endvar-------------- " << endvar;
+
+
+                     //xdelta
+                           //float secpos= (iposstart*60);
+                           float secpos2= xdelta;
+                            qDebug() << "-------------float secpos2= xdelta; ---------- " << secpos2 ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream3;
+                            stream3 << std::fixed << std::setprecision(3) << secpos2;
+                            std::string str3 = stream3.str();
+                        const char* startvar2 = str3.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar2;
+
+                     //ydelta
+                           //float secpos= (iposstart*60);
+                           float secpos3= ydelta;
+                            qDebug() << "-------------float secpos2= xdelta; ---------- " << secpos3 ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream4;
+                            stream4 << std::fixed << std::setprecision(3) << secpos3;
+                            std::string str4 = stream4.str();
+                        const char* startvar3 = str4.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar3;
+
+
+            char result[50000];
+
+             strcpy(result,"ffplay -i '");
+             strcat(result,filePathfromqs);
+              strcat(result,"' -vf \"crop=");
+              strcat(result,startvar);
+              strcat(result,":");
+              strcat(result,endvar);
+               strcat(result,":");
+                strcat(result,startvar2);
+                strcat(result,":");
+                 strcat(result,startvar3);
+             // strcat(result,":0:0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1\"");
+            strcat(result,",drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1\"");
+
+
+                      qDebug() << "-------crop------------result--------------- " << result;
+
+
+                      if(system(result) != 0)
+                     {
+                         qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                         ui->statusBar->showMessage("");
+                         QMessageBox msgBox;
+                         msgBox.setText("Error: ffmpeg failed.");
+                         msgBox.exec();
+                     }
+                     else
+                     {
+                         ui->statusBar->showMessage("");
+//                         QMessageBox msgBox;
+//                         msgBox.setText("???");
+//                         msgBox.exec();
+
+                         QMessageBox::StandardButton reply;
+                          reply = QMessageBox::question(this, "Crop", "Save?",QMessageBox::Yes|QMessageBox::No);
+                          if (reply == QMessageBox::Yes)
+                          {
+                                ui->statusBar->showMessage("Please wait...");
+                         //saving crop
+
+                              char result2[50000];
+
+                               strcpy(result2,"ffmpeg -y -i '");
+                               strcat(result2,filePathfromqs);
+                                strcat(result2,"' -filter:v \"crop=");
+                                strcat(result2,startvar);
+                                strcat(result2,":");
+                                strcat(result2,endvar);
+                                strcat(result2,":");
+                                 strcat(result2,startvar2);
+                                 strcat(result2,":");
+                                  strcat(result2,startvar3);
+                                strcat(result2,",scale=1920:1080:flags=lanczos,setsar=1\" -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
+                                strcat(result2,savefileNamefromqs);
+                                strcat(result2,"'");
+
+
+//ffmpeg -y -i mkv.mkv -filter:v "crop=1920:1030:0:50,scale=1920:1080:flags=lanczos,setsar=1" -c:v libx264 -preset veryfast -crf 15 -c:a copy mkv_crop50topHQ2scaled.mkv
+
+
+                                        qDebug() << "-------crop------------result2--------------- " << result2;
+
+
+                                        if(system(result2) != 0)
+                                       {
+                                           qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("Error: ffmpeg failed.");
+                                           msgBox.exec();
+                                       }
+                                       else
+                                       {
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("File saved.");
+                                           msgBox.exec();
+                                       }
+
+
+
+
+                          //end: saving crop
+
+
+
+
+                          } else
+                          {
+                              QMessageBox msgBox;
+                              msgBox.setText("Crop not saved.");
+                              msgBox.exec();
+                          }
+
+                     }
+
+
+    }
+//***********
+
+
+
+//ffplay -i mkv.mkv -vf "crop=1536:864:0:0,drawtext=text='%{pts\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=1920:1080:flags=lanczos,setsar=1"
+
+
+
+
+
+
+    }
+
+
+
+}
+
+
+//END top left
+//-----------------------
+
+
+
+//slowmotion
+
+
+void MainWindow::slowmotion()
+{
+
+    QByteArray array;
+    char* filePathfromqs;
+
+       // qDebug() << "--------------filePath---------- " << filePath;
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+
+     QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+     qDebug() << "-------savefileName------- " << savefileName ;
+
+    if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+   {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Name/Path Error.");
+        msgBox.exec();
+    }
+
+
+
+     else
+    {
+
+
+         // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+           ui->statusBar->showMessage("Please wait...");
+
+    //original file
+        array = vvfilePath.toLocal8Bit();
+        filePathfromqs = array.data();
+        qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+     //name of saved file
+         QByteArray array2 = savefileName.toLocal8Bit();
+         char* savefileNamefromqs = array2.data();
+         qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+    char result[50000];
+
+     strcpy(result,"ffmpeg -y -i '");
+     strcat(result,filePathfromqs);
+      strcat(result,"' -filter_complex \"[0:v]setpts=2*PTS[v];[0:a]atempo=0.5[a]\" -map \"[v]\" -map \"[a]\" -r 30000/1001 -crf 15 '");
+       strcat(result,savefileNamefromqs);
+        strcat(result,"'");
+
+
+
+//ffmpeg -y -i mkv.mkv -filter_complex "[0:v]setpts=2*PTS[v];[0:a]atempo=0.5[a]" -map "[v]" -map "[a]" -r 30000/1001 -crf 15 slowsoundoutput.mkv
+
+         qDebug() << "-------------------result--------------- " << result;
+
+
+
+        //if(system(0) != 0)
+         if(system(result) != 0)
+        {
+            qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("Error: ffmpeg failed.");
+            msgBox.exec();
+        }
+        else
+        {
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("File saved.");
+            msgBox.exec();
+        }
+
+}
+
+}
+
+
+//crop 4k
+
+
+
+//4K crop from bottom right
+void MainWindow::crop4Kbottomright()
+{
+
+
+    bool ok;
+       int i = QInputDialog::getInt(this, tr("Crop"),
+                                 tr("Percentage:"), 25, 50, 99, 1, &ok);
+    if (ok)
+    {
+        //integerLabel->setText(tr("%1%").arg(i));
+
+         qDebug() << "+++++++++++++++++++++++++CROP   " << i;
+
+//         80%
+//
+//         x: of 3840: 1536
+//         y: of 2160: 864
+
+         double ii=i;
+
+
+         float x= (3840.0/100.0)*ii;
+          double y= (2160.0/100.0)*ii;
+
+           qDebug() << "++++++++   x   +++++++++++++++++CROP   " << x;
+
+            qDebug() << "++++++++   y   +++++++++++++++++CROP   " << y;
+
+
+//************
+
+
+
+            QByteArray array;
+            char* filePathfromqs;
+
+                //qDebug() << "--------------filePath---------- " << filePath;
+
+            QString pname = ui->plainTextEdit->toPlainText();
+            QString fname = ui->plainTextEdit_2->toPlainText();
+            QString savefileName = pname + "/" + fname;
+
+             QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+
+             qDebug() << "-------savefileName------- " << savefileName ;
+
+            if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+
+           {
+                QMessageBox msgBox;
+                msgBox.setText("Error: File Name/Path Error.");
+                msgBox.exec();
+            }
+
+
+
+             else
+            {
+
+
+                 // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+                   ui->statusBar->showMessage("Crop Preview");
+
+            //original file
+                array = vvfilePath.toLocal8Bit();
+                filePathfromqs = array.data();
+                qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+             //name of saved file
+                 QByteArray array2 = savefileName.toLocal8Bit();
+                 char* savefileNamefromqs = array2.data();
+                 qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+
+
+                     //STARTPOINT
+                           //float secpos= (iposstart*60);
+                           float secpos= x;
+                            qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream;
+                            stream << std::fixed << std::setprecision(3) << secpos;
+                            std::string str = stream.str();
+                        const char* startvar = str.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+                     //ENDPOINT
+                         float secposend= y ;
+                          qDebug() << "-------------float secposend---------- " << secposend ;
+                       //format in seconds.ms (3 digits ms)
+                          std::stringstream stream2;
+                          stream2 << std::fixed << std::setprecision(3) << secposend;
+                          std::string str2 = stream2.str();
+                      const char* endvar = str2.c_str();
+                     qDebug() << "------------------endvar-------------- " << endvar;
+
+
+            char result[50000];
+
+             strcpy(result,"ffplay -i '");
+             strcat(result,filePathfromqs);
+              strcat(result,"' -vf \"crop=");
+              strcat(result,startvar);
+              strcat(result,":");
+              strcat(result,endvar);
+              strcat(result,":0:0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1\"");
+
+
+
+                      qDebug() << "-------crop------------result--------------- " << result;
+
+
+                      if(system(result) != 0)
+                     {
+                         qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                         ui->statusBar->showMessage("");
+                         QMessageBox msgBox;
+                         msgBox.setText("Error: ffmpeg failed.");
+                         msgBox.exec();
+                     }
+                     else
+                     {
+                         ui->statusBar->showMessage("");
+//                         QMessageBox msgBox;
+//                         msgBox.setText("???");
+//                         msgBox.exec();
+
+                         QMessageBox::StandardButton reply;
+                          reply = QMessageBox::question(this, "Crop", "Save?",QMessageBox::Yes|QMessageBox::No);
+                          if (reply == QMessageBox::Yes)
+                          {
+                             ui->statusBar->showMessage("Please wait...");
+                         //saving crop
+
+                              char result2[50000];
+
+                               strcpy(result2,"ffmpeg -y -i '");
+                               strcat(result2,filePathfromqs);
+                                strcat(result2,"' -filter:v \"crop=");
+                                strcat(result2,startvar);
+                                strcat(result2,":");
+                                strcat(result2,endvar);
+                                strcat(result2,":0:0,scale=3840:2160:flags=lanczos,setsar=1\" -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
+                                strcat(result2,savefileNamefromqs);
+                                strcat(result2,"'");
+
+
+//ffmpeg -y -i mkv.mkv -filter:v "crop=3840:1030:0:50,scale=3840:2160:flags=lanczos,setsar=1" -c:v libx264 -preset veryfast -crf 15 -c:a copy mkv_crop50topHQ2scaled.mkv
+
+
+                                        qDebug() << "-------crop------------result2--------------- " << result2;
+
+
+                                        if(system(result2) != 0)
+                                       {
+                                           qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("Error: ffmpeg failed.");
+                                           msgBox.exec();
+                                       }
+                                       else
+                                       {
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("File saved.");
+                                           msgBox.exec();
+                                       }
+
+
+
+
+                          //end: saving crop
+
+
+
+
+                          } else
+                          {
+                              QMessageBox msgBox;
+                              msgBox.setText("Crop not saved.");
+                              msgBox.exec();
+                          }
+
+                     }
+
+
+    }
+//***********
+
+
+
+//ffplay -i mkv.mkv -vf "crop=1536:864:0:0,drawtext=text='%{pts\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1"
+
+
+
+
+
+
+    }
+
+
+
+}
+
+
+
+//4K crop bottom left
+
+
+void MainWindow::crop4Kbottomleft()
+{
+
+
+    bool ok;
+       int i = QInputDialog::getInt(this, tr("Crop"),
+                                 tr("Percentage:"), 25, 50, 99, 1, &ok);
+    if (ok)
+    {
+        //integerLabel->setText(tr("%1%").arg(i));
+
+         qDebug() << "+++++++++++++++++++++++++CROP   " << i;
+
+//         80%
+//
+//         x: of 3840: 1536
+//         y: of 2160: 864
+//         xdelta = 3840 - 1536
+
+         double ii=i;
+
+
+         double x= (3840.0/100.0)*ii;
+          double y= (2160.0/100.0)*ii;
+          double xdelta= 3840.0-x;
+
+           qDebug() << "++++++++   x   +++++++++++++++++CROP   " << x;
+
+            qDebug() << "++++++++   y   +++++++++++++++++CROP   " << y;
+
+             qDebug() << "++++++++   xdelta   +++++++++++++++++CROP   " << xdelta;
+
+
+//************
+
+
+
+            QByteArray array;
+            char* filePathfromqs;
+
+                //qDebug() << "--------------filePath---------- " << filePath;
+
+            QString pname = ui->plainTextEdit->toPlainText();
+            QString fname = ui->plainTextEdit_2->toPlainText();
+            QString savefileName = pname + "/" + fname;
+
+             QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+
+             qDebug() << "-------savefileName------- " << savefileName ;
+
+            if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+
+           {
+                QMessageBox msgBox;
+                msgBox.setText("Error: File Name/Path Error.");
+                msgBox.exec();
+            }
+
+
+
+             else
+            {
+
+
+                 // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+                   ui->statusBar->showMessage("Crop Preview");
+
+            //original file
+                array = vvfilePath.toLocal8Bit();
+                filePathfromqs = array.data();
+                qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+             //name of saved file
+                 QByteArray array2 = savefileName.toLocal8Bit();
+                 char* savefileNamefromqs = array2.data();
+                 qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+
+
+                     //STARTPOINT
+                           //float secpos= (iposstart*60);
+                           float secpos= x;
+                            qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream;
+                            stream << std::fixed << std::setprecision(3) << secpos;
+                            std::string str = stream.str();
+                        const char* startvar = str.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+                     //ENDPOINT
+                         float secposend= y ;
+                          qDebug() << "-------------float secposend---------- " << secposend ;
+                       //format in seconds.ms (3 digits ms)
+                          std::stringstream stream2;
+                          stream2 << std::fixed << std::setprecision(3) << secposend;
+                          std::string str2 = stream2.str();
+                      const char* endvar = str2.c_str();
+                     qDebug() << "------------------endvar-------------- " << endvar;
+
+
+                     //xdelta
+                           //float secpos= (iposstart*60);
+                           float secpos2= xdelta;
+                            qDebug() << "-------------float secpos2= xdelta; ---------- " << secpos2 ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream3;
+                            stream3 << std::fixed << std::setprecision(3) << secpos2;
+                            std::string str3 = stream3.str();
+                        const char* startvar2 = str3.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar2;
+
+
+            char result[50000];
+
+             strcpy(result,"ffplay -i '");
+             strcat(result,filePathfromqs);
+              strcat(result,"' -vf \"crop=");
+              strcat(result,startvar);
+              strcat(result,":");
+              strcat(result,endvar);
+               strcat(result,":");
+                strcat(result,startvar2);
+             // strcat(result,":0:0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1\"");
+            strcat(result,":0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1\"");
+
+
+                      qDebug() << "-------crop------------result--------------- " << result;
+
+
+                      if(system(result) != 0)
+                     {
+                         qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                         ui->statusBar->showMessage("");
+                         QMessageBox msgBox;
+                         msgBox.setText("Error: ffmpeg failed.");
+                         msgBox.exec();
+                     }
+                     else
+                     {
+                         ui->statusBar->showMessage("");
+//                         QMessageBox msgBox;
+//                         msgBox.setText("???");
+//                         msgBox.exec();
+
+                         QMessageBox::StandardButton reply;
+                          reply = QMessageBox::question(this, "Crop", "Save?",QMessageBox::Yes|QMessageBox::No);
+                          if (reply == QMessageBox::Yes)
+                          {
+                                ui->statusBar->showMessage("Please wait...");
+                         //saving crop
+
+                              char result2[50000];
+
+                               strcpy(result2,"ffmpeg -y -i '");
+                               strcat(result2,filePathfromqs);
+                                strcat(result2,"' -filter:v \"crop=");
+                                strcat(result2,startvar);
+                                strcat(result2,":");
+                                strcat(result2,endvar);
+                                strcat(result2,":");
+                                 strcat(result2,startvar2);
+                                strcat(result2,":0,scale=3840:2160:flags=lanczos,setsar=1\" -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
+                                strcat(result2,savefileNamefromqs);
+                                strcat(result2,"'");
+
+
+//ffmpeg -y -i mkv.mkv -filter:v "crop=3840:1030:0:50,scale=3840:2160:flags=lanczos,setsar=1" -c:v libx264 -preset veryfast -crf 15 -c:a copy mkv_crop50topHQ2scaled.mkv
+
+
+                                        qDebug() << "-------crop------------result2--------------- " << result2;
+
+
+                                        if(system(result2) != 0)
+                                       {
+                                           qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("Error: ffmpeg failed.");
+                                           msgBox.exec();
+                                       }
+                                       else
+                                       {
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("File saved.");
+                                           msgBox.exec();
+                                       }
+
+
+
+
+                          //end: saving crop
+
+
+
+
+                          } else
+                          {
+                              QMessageBox msgBox;
+                              msgBox.setText("Crop not saved.");
+                              msgBox.exec();
+                          }
+
+                     }
+
+
+    }
+//***********
+
+
+
+//ffplay -i mkv.mkv -vf "crop=1536:864:0:0,drawtext=text='%{pts\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1"
+
+
+
+
+
+
+    }
+
+
+
+}
+
+
+//END 4K crop bottom left
+//-----------------------
+
+
+//4K crop top right
+
+void MainWindow::crop4Ktopright()
+{
+
+
+    bool ok;
+       int i = QInputDialog::getInt(this, tr("Crop"),
+                                 tr("Percentage:"), 25, 50, 99, 1, &ok);
+    if (ok)
+    {
+        //integerLabel->setText(tr("%1%").arg(i));
+
+         qDebug() << "+++++++++++++++++++++++++CROP   " << i;
+
+//         80%
+//
+//         x: of 3840: 1536
+//         y: of 2160: 864
+//         xdelta = 3840 - 1536
+
+         double ii=i;
+
+
+         double x= (3840.0/100.0)*ii;
+          double y= (2160.0/100.0)*ii;
+          double ydelta= 2160.0-y;
+
+           qDebug() << "++++++++   x   +++++++++++++++++CROP   " << x;
+
+            qDebug() << "++++++++   y   +++++++++++++++++CROP   " << y;
+
+             qDebug() << "++++++++   ydelta   +++++++++++++++++CROP   " << ydelta;
+
+
+//************
+
+
+
+            QByteArray array;
+            char* filePathfromqs;
+
+                //qDebug() << "--------------filePath---------- " << filePath;
+
+            QString pname = ui->plainTextEdit->toPlainText();
+            QString fname = ui->plainTextEdit_2->toPlainText();
+            QString savefileName = pname + "/" + fname;
+
+             QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+
+             qDebug() << "-------savefileName------- " << savefileName ;
+
+            if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+
+           {
+                QMessageBox msgBox;
+                msgBox.setText("Error: File Name/Path Error.");
+                msgBox.exec();
+            }
+
+
+
+             else
+            {
+
+
+                 // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+                   ui->statusBar->showMessage("Crop Preview");
+
+            //original file
+                array = vvfilePath.toLocal8Bit();
+                filePathfromqs = array.data();
+                qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+             //name of saved file
+                 QByteArray array2 = savefileName.toLocal8Bit();
+                 char* savefileNamefromqs = array2.data();
+                 qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+
+
+                     //STARTPOINT
+                           //float secpos= (iposstart*60);
+                           float secpos= x;
+                            qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream;
+                            stream << std::fixed << std::setprecision(3) << secpos;
+                            std::string str = stream.str();
+                        const char* startvar = str.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+                     //ENDPOINT
+                         float secposend= y ;
+                          qDebug() << "-------------float secposend---------- " << secposend ;
+                       //format in seconds.ms (3 digits ms)
+                          std::stringstream stream2;
+                          stream2 << std::fixed << std::setprecision(3) << secposend;
+                          std::string str2 = stream2.str();
+                      const char* endvar = str2.c_str();
+                     qDebug() << "------------------endvar-------------- " << endvar;
+
+
+                     //ydelta
+                           //float secpos= (iposstart*60);
+                           float secpos2= ydelta;
+                            qDebug() << "-------------float secpos2= xdelta; ---------- " << secpos2 ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream3;
+                            stream3 << std::fixed << std::setprecision(3) << secpos2;
+                            std::string str3 = stream3.str();
+                        const char* startvar2 = str3.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar2;
+
+
+            char result[50000];
+
+             strcpy(result,"ffplay -i '");
+             strcat(result,filePathfromqs);
+              strcat(result,"' -vf \"crop=");
+              strcat(result,startvar);
+              strcat(result,":");
+              strcat(result,endvar);
+               strcat(result,":0:");
+                strcat(result,startvar2);
+             // strcat(result,":0:0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1\"");
+            strcat(result,",drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1\"");
+
+
+                      qDebug() << "-------crop------------result--------------- " << result;
+
+
+                      if(system(result) != 0)
+                     {
+                         qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                         ui->statusBar->showMessage("");
+                         QMessageBox msgBox;
+                         msgBox.setText("Error: ffmpeg failed.");
+                         msgBox.exec();
+                     }
+                     else
+                     {
+                         ui->statusBar->showMessage("");
+//                         QMessageBox msgBox;
+//                         msgBox.setText("???");
+//                         msgBox.exec();
+
+                         QMessageBox::StandardButton reply;
+                          reply = QMessageBox::question(this, "Crop", "Save?",QMessageBox::Yes|QMessageBox::No);
+                          if (reply == QMessageBox::Yes)
+                          {
+                                ui->statusBar->showMessage("Please wait...");
+                         //saving crop
+
+                              char result2[50000];
+
+                               strcpy(result2,"ffmpeg -y -i '");
+                               strcat(result2,filePathfromqs);
+                                strcat(result2,"' -filter:v \"crop=");
+                                strcat(result2,startvar);
+                                strcat(result2,":");
+                                strcat(result2,endvar);
+                                strcat(result2,":0:");
+                                 strcat(result2,startvar2);
+                                strcat(result2,",scale=3840:2160:flags=lanczos,setsar=1\" -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
+                                strcat(result2,savefileNamefromqs);
+                                strcat(result2,"'");
+
+
+//ffmpeg -y -i mkv.mkv -filter:v "crop=3840:1030:0:50,scale=3840:2160:flags=lanczos,setsar=1" -c:v libx264 -preset veryfast -crf 15 -c:a copy mkv_crop50topHQ2scaled.mkv
+
+
+                                        qDebug() << "-------crop------------result2--------------- " << result2;
+
+
+                                        if(system(result2) != 0)
+                                       {
+                                           qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("Error: ffmpeg failed.");
+                                           msgBox.exec();
+                                       }
+                                       else
+                                       {
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("File saved.");
+                                           msgBox.exec();
+                                       }
+
+
+
+
+                          //end: saving crop
+
+
+
+
+                          } else
+                          {
+                              QMessageBox msgBox;
+                              msgBox.setText("Crop not saved.");
+                              msgBox.exec();
+                          }
+
+                     }
+
+
+    }
+//***********
+
+
+
+//ffplay -i mkv.mkv -vf "crop=1536:864:0:0,drawtext=text='%{pts\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1"
+
+
+
+
+
+
+    }
+
+
+
+}
+
+
+//4K END top right
+//-----------------------
+
+
+
+//4K crop top left
+
+void MainWindow::crop4Ktopleft()
+{
+
+
+
+    bool ok;
+       int i = QInputDialog::getInt(this, tr("Crop"),
+                                 tr("Percentage:"), 25, 50, 99, 1, &ok);
+    if (ok)
+    {
+        //integerLabel->setText(tr("%1%").arg(i));
+
+         qDebug() << "+++++++++++++++++++++++++CROP   " << i;
+
+//         80%
+//
+//         x: of 3840: 1536
+//         y: of 2160: 864
+//         xdelta = 3840 - 1536
+
+         double ii=i;
+
+
+         double x= (3840.0/100.0)*ii;
+          double y= (2160.0/100.0)*ii;
+          double xdelta= 3840.0-x;
+          double ydelta= 2160.0-y;
+
+           qDebug() << "++++++++   x   +++++++++++++++++CROP   " << x;
+
+            qDebug() << "++++++++   y   +++++++++++++++++CROP   " << y;
+
+              qDebug() << "++++++++   xdelta   +++++++++++++++++CROP   " << xdelta;
+             qDebug() << "++++++++   ydelta   +++++++++++++++++CROP   " << ydelta;
+
+
+//************
+
+
+
+            QByteArray array;
+            char* filePathfromqs;
+
+                //qDebug() << "--------------filePath---------- " << filePath;
+
+            QString pname = ui->plainTextEdit->toPlainText();
+            QString fname = ui->plainTextEdit_2->toPlainText();
+            QString savefileName = pname + "/" + fname;
+
+             QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+
+             qDebug() << "-------savefileName------- " << savefileName ;
+
+            if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+
+           {
+                QMessageBox msgBox;
+                msgBox.setText("Error: File Name/Path Error.");
+                msgBox.exec();
+            }
+
+
+
+             else
+            {
+
+
+                 // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+                   ui->statusBar->showMessage("Crop Preview");
+
+            //original file
+                array = vvfilePath.toLocal8Bit();
+                filePathfromqs = array.data();
+                qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+             //name of saved file
+                 QByteArray array2 = savefileName.toLocal8Bit();
+                 char* savefileNamefromqs = array2.data();
+                 qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+
+
+                     //STARTPOINT
+                           //float secpos= (iposstart*60);
+                           float secpos= x;
+                            qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream;
+                            stream << std::fixed << std::setprecision(3) << secpos;
+                            std::string str = stream.str();
+                        const char* startvar = str.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+                     //ENDPOINT
+                         float secposend= y ;
+                          qDebug() << "-------------float secposend---------- " << secposend ;
+                       //format in seconds.ms (3 digits ms)
+                          std::stringstream stream2;
+                          stream2 << std::fixed << std::setprecision(3) << secposend;
+                          std::string str2 = stream2.str();
+                      const char* endvar = str2.c_str();
+                     qDebug() << "------------------endvar-------------- " << endvar;
+
+
+                     //xdelta
+                           //float secpos= (iposstart*60);
+                           float secpos2= xdelta;
+                            qDebug() << "-------------float secpos2= xdelta; ---------- " << secpos2 ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream3;
+                            stream3 << std::fixed << std::setprecision(3) << secpos2;
+                            std::string str3 = stream3.str();
+                        const char* startvar2 = str3.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar2;
+
+                     //ydelta
+                           //float secpos= (iposstart*60);
+                           float secpos3= ydelta;
+                            qDebug() << "-------------float secpos2= xdelta; ---------- " << secpos3 ;
+                         //format in seconds.ms (3 digits ms)
+                            std::stringstream stream4;
+                            stream4 << std::fixed << std::setprecision(3) << secpos3;
+                            std::string str4 = stream4.str();
+                        const char* startvar3 = str4.c_str();
+                         qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar3;
+
+
+            char result[50000];
+
+             strcpy(result,"ffplay -i '");
+             strcat(result,filePathfromqs);
+              strcat(result,"' -vf \"crop=");
+              strcat(result,startvar);
+              strcat(result,":");
+              strcat(result,endvar);
+               strcat(result,":");
+                strcat(result,startvar2);
+                strcat(result,":");
+                 strcat(result,startvar3);
+             // strcat(result,":0:0,drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1\"");
+            strcat(result,",drawtext=text='%{pts\\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1\"");
+
+
+                      qDebug() << "-------crop------------result--------------- " << result;
+
+
+                      if(system(result) != 0)
+                     {
+                         qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                         ui->statusBar->showMessage("");
+                         QMessageBox msgBox;
+                         msgBox.setText("Error: ffmpeg failed.");
+                         msgBox.exec();
+                     }
+                     else
+                     {
+                         ui->statusBar->showMessage("");
+//                         QMessageBox msgBox;
+//                         msgBox.setText("???");
+//                         msgBox.exec();
+
+                         QMessageBox::StandardButton reply;
+                          reply = QMessageBox::question(this, "Crop", "Save?",QMessageBox::Yes|QMessageBox::No);
+                          if (reply == QMessageBox::Yes)
+                          {
+                                ui->statusBar->showMessage("Please wait...");
+                         //saving crop
+
+                              char result2[50000];
+
+                               strcpy(result2,"ffmpeg -y -i '");
+                               strcat(result2,filePathfromqs);
+                                strcat(result2,"' -filter:v \"crop=");
+                                strcat(result2,startvar);
+                                strcat(result2,":");
+                                strcat(result2,endvar);
+                                strcat(result2,":");
+                                 strcat(result2,startvar2);
+                                 strcat(result2,":");
+                                  strcat(result2,startvar3);
+                                strcat(result2,",scale=3840:2160:flags=lanczos,setsar=1\" -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
+                                strcat(result2,savefileNamefromqs);
+                                strcat(result2,"'");
+
+
+//ffmpeg -y -i mkv.mkv -filter:v "crop=3840:1030:0:50,scale=3840:2160:flags=lanczos,setsar=1" -c:v libx264 -preset veryfast -crf 15 -c:a copy mkv_crop50topHQ2scaled.mkv
+
+
+                                        qDebug() << "-------crop------------result2--------------- " << result2;
+
+
+                                        if(system(result2) != 0)
+                                       {
+                                           qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("Error: ffmpeg failed.");
+                                           msgBox.exec();
+                                       }
+                                       else
+                                       {
+                                           ui->statusBar->showMessage("");
+                                           QMessageBox msgBox;
+                                           msgBox.setText("File saved.");
+                                           msgBox.exec();
+                                       }
+
+
+
+
+                          //end: saving crop
+
+
+
+
+                          } else
+                          {
+                              QMessageBox msgBox;
+                              msgBox.setText("Crop not saved.");
+                              msgBox.exec();
+                          }
+
+                     }
+
+
+    }
+//***********
+
+
+
+//ffplay -i mkv.mkv -vf "crop=1536:864:0:0,drawtext=text='%{pts\:hms}':box=1:x=(w-tw)/2:y=h-(2*lh) :fontsize=56,scale=3840:2160:flags=lanczos,setsar=1"
+
+
+
+
+
+
+    }
+
+
+
+}
+
+
+//END 4K top left
+//-----------------------
+
+
+
+//End crop 4K
 
 MainWindow::~MainWindow()
 {

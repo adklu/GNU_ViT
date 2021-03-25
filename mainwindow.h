@@ -45,6 +45,16 @@ private slots:
           void tomp4aac();
           void replaceaudio();
           void titles();
+          void crop();
+           void cropbottomleft();
+            void croptopright();
+             void croptopleft();
+             void slowmotion();
+             void to4K();
+             void crop4Kbottomright();
+             void crop4Kbottomleft();
+             void crop4Ktopright();
+             void crop4Ktopleft();
 
 };
 
