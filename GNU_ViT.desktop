@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=GNU_ViT
-Version=0.1.09
+Version=0.0.60
 GenericName=GNU_ViT
 Comment=GNU_ViT
 Exec=/home/[user name]/GNU_ViT/GNU_ViT %F

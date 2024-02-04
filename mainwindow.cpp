@@ -9,11 +9,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-QString version= "v0109";
+QString version= "v0110";
 QString license = "GNU_ViT - Video Editor Tool\
         \n\
 \n\
-Copyright (c) 2021 A.D.Klumpp\
+Copyright (c) 2021-2024 A.D.Klumpp\
 \n\
 \n\
 This program is free software; you can redistribute it and/or modify \
@@ -1329,6 +1329,199 @@ void MainWindow::to60fps()
 }
 
 }
+
+//mft to 4k
+
+
+void MainWindow::con43_4k()
+{
+
+    QByteArray array;
+    char* filePathfromqs;
+
+       // qDebug() << "--------------filePath---------- " << filePath;
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+
+     QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+     qDebug() << "-------savefileName------- " << savefileName ;
+
+    if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+   {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Name/Path Error.");
+        msgBox.exec();
+    }
+
+
+
+     else
+    {
+
+
+         // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+           ui->statusBar->showMessage("Please wait...");
+
+    //original file
+        array = vvfilePath.toLocal8Bit();
+        filePathfromqs = array.data();
+        qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+     //name of saved file
+         QByteArray array2 = savefileName.toLocal8Bit();
+         char* savefileNamefromqs = array2.data();
+         qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+    char result[50000];
+
+    //ffmpeg -i P1060024.MP4 -vf "scale=3840:2160:force_original_aspect_ratio=decrease,pad=3840:2160:-1:-1:color=black" 4koutputP1060024.MP4
+
+     strcpy(result,"ffmpeg -y -i ");
+     strcat(result,filePathfromqs);
+      strcat(result," -vf 'scale=3840:2160:force_original_aspect_ratio=decrease,pad=3840:2160:-1:-1:color=black' ");
+       strcat(result,savefileNamefromqs);
+        //strcat(result,"'");
+
+
+         qDebug() << "-------------------result--------------- " << result;
+
+
+
+        //if(system(0) != 0)
+         if(system(result) != 0)
+        {
+            qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("Error: ffmpeg failed.");
+            msgBox.exec();
+        }
+        else
+        {
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("File saved.");
+            msgBox.exec();
+        }
+
+}
+
+}
+
+
+//mft to 4k END
+
+
+//mft to FHD
+
+void MainWindow::con43_FHD()
+{
+
+    QByteArray array;
+    char* filePathfromqs;
+
+       // qDebug() << "--------------filePath---------- " << filePath;
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+
+     QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+     qDebug() << "-------savefileName------- " << savefileName ;
+
+    if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+   {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Name/Path Error.");
+        msgBox.exec();
+    }
+
+
+
+     else
+    {
+
+
+         // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+           ui->statusBar->showMessage("Please wait...");
+
+    //original file
+        array = vvfilePath.toLocal8Bit();
+        filePathfromqs = array.data();
+        qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+     //name of saved file
+         QByteArray array2 = savefileName.toLocal8Bit();
+         char* savefileNamefromqs = array2.data();
+         qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+    char result[50000];
+
+    //ffmpeg -i P1060024.MP4 -vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:-1:-1:color=black" FHDoutputP1060024.MP4
+
+     strcpy(result,"ffmpeg -y -i ");
+     strcat(result,filePathfromqs);
+      strcat(result," -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:-1:-1:color=black' ");
+       strcat(result,savefileNamefromqs);
+        //strcat(result,"'");
+
+
+         qDebug() << "-------------------result--------------- " << result;
+
+
+
+        //if(system(0) != 0)
+         if(system(result) != 0)
+        {
+            qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("Error: ffmpeg failed.");
+            msgBox.exec();
+        }
+        else
+        {
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("File saved.");
+            msgBox.exec();
+        }
+
+}
+
+}
+
+
+
+//mft to FHD END
 
 void MainWindow::towav()
 {

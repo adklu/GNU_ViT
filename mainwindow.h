@@ -55,6 +55,9 @@ private slots:
              void crop4Kbottomleft();
              void crop4Ktopright();
              void crop4Ktopleft();
+             void con43_4k();
+             void con43_FHD();
+
 
 };
 

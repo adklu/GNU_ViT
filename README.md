@@ -1,4 +1,4 @@
-v109
+v110
 
 ## GNU_ViT - Video Editor Tool
 
@@ -65,7 +65,7 @@ Icon=/home/[username]/GNU_ViT/Icon1.png
 
 GNU_ViT - Video Editor Tool
        
-Copyright (c) 2021 A.D.Klumpp
+Copyright (c) 2021-2024 A.D.Klumpp
 
 This program is free software; you can redistribute it and/or modify 
 it under the terms of the GNU General Public License as published by 
