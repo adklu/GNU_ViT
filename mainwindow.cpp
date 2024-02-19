@@ -1,15 +1,39 @@
-//needed:
+//required:
 //sudo apt-get install qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5
 //ffmpeg 3.3.6
 
-//todo
-//-
-//-
+//Windows 11 compatible:
+//con43_4k();
+//con43_FHD();
+//cut()
+//conc()
+//jpgsprint()
+//titles()
+//replaceaudio()
+//to60fps()
+//to30fps()
+//to24fps()
+//towav()
+//tofullhd()
+//to4K()
+//ffprobe()
+
+//not used/wip
+//crop4Kbottomright();
+//crop4Kbottomleft();
+//crop4Ktopright();
+//crop4Ktopleft();
+//crop();
+//cropbottomleft();
+//croptopright();
+//croptopleft();
+//slowmotion();
+//tomp4aac()
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-QString version= "v0110";
+QString version= "v01.14";
 QString license = "GNU_ViT - Video Editor Tool\
         \n\
 \n\
@@ -580,8 +604,8 @@ void MainWindow::dir()
 }
 
 
-
-void MainWindow::cut()
+//linux
+void MainWindow::cut_linux()
 {
 
     QString pname = ui->plainTextEdit->toPlainText();
@@ -710,7 +734,7 @@ qDebug() << "------------------endvar-------------- " << endvar;
 
 }
 
-void MainWindow::conc()
+void MainWindow::conc_linux()
 {
 
 
@@ -952,7 +976,697 @@ QString filesasstring = "";
 }
 
 
-void MainWindow::ffprobe()
+//win11
+void MainWindow::cut()
+{
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+    QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+     qDebug() << "-------savefileName------- " << savefileName ;
+
+    if((pname=="")||(fname=="")||(vvfilePath=="")||(iposend<iposstart)||(iposend==iposstart)||(QFileInfo(savefileName).exists()))
+
+   {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Name/Path or Start/End Point Error.");
+        msgBox.exec();
+    }
+
+     else
+    {
+
+ui->statusBar->showMessage("Please wait...");
+//QString startminu = ui->label->text();
+
+// qDebug() << "---------------QString ---startminu----------- " << startminu;
+
+
+//float iposstart = startminu.toFloat();
+
+ qDebug() << "--------------float iposstart ---------- " << iposstart ;
+ qDebug() << "--------------float  iposend ---------- " <<  iposend ;
+
+
+//STARTPOINT
+      //float secpos= (iposstart*60);
+      float secpos= iposstart;
+       qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+    //format in seconds.ms (3 digits ms)
+       std::stringstream stream;
+       stream << std::fixed << std::setprecision(3) << secpos;
+       std::string str = stream.str();
+   const char* startvar = str.c_str();
+    qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+//ENDPOINT
+    float secposend= iposend ;
+     qDebug() << "-------------float secposend---------- " << secposend ;
+  //format in seconds.ms (3 digits ms)
+     std::stringstream stream2;
+     stream2 << std::fixed << std::setprecision(3) << secposend;
+     std::string str2 = stream2.str();
+ const char* endvar = str2.c_str();
+qDebug() << "------------------endvar-------------- " << endvar;
+
+//    const char* startvar = "60.768";
+   //const char* endvar = "120.876";
+
+
+    //const char* filePathfromqs = filePath.toStdString().c_str();
+
+//original file
+    QByteArray array = vvfilePath.toLocal8Bit();
+    char* filePathfromqs = array.data();
+    qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+ //name of saved file
+     QByteArray array2 = savefileName.toLocal8Bit();
+     char* savefileNamefromqs = array2.data();
+     qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+      //const char* savefileNamefromqs = savefileName.toStdString().c_str();
+
+
+
+
+
+    char result[1000];
+/*
+    strcpy(result,"ffmpeg -y -i '");
+    strcat(result,filePathfromqs);
+
+    strcat(result,"' -c:v libx264 -preset veryfast -crf 15 -c:a copy -ss ");
+    strcat(result,startvar);
+    strcat(result," -to ");
+    strcat(result,endvar);
+    strcat(result," '");
+    strcat(result,savefileNamefromqs);
+    strcat(result,"'");
+
+*/
+//win11
+
+    strcpy(result,"ffmpeg -y -i \"");
+    strcat(result,filePathfromqs);
+
+    strcat(result,"\" -c:v libx264 -preset veryfast -crf 15 -c:a copy -ss ");
+    strcat(result,startvar);
+    strcat(result," -to ");
+    strcat(result,endvar);
+    strcat(result," \"");
+    strcat(result,savefileNamefromqs);
+    strcat(result,"\"");
+
+
+  //
+
+    qDebug() << "-------------------result--------------- " << result;
+
+
+    //00:01:00 -to 00:02:00
+    if(system(result) != 0)
+    {
+        qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+        ui->statusBar->showMessage("");
+        QMessageBox msgBox;
+        msgBox.setText("Error: ffmpeg failed.");
+        msgBox.exec();
+
+    }
+    else
+    {
+        ui->statusBar->showMessage("");
+        QMessageBox msgBox;
+        msgBox.setText("File saved.");
+        msgBox.exec();
+
+    }
+
+
+    }
+
+}
+
+void MainWindow::conc()
+{
+
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+
+    //name of saved file
+        QByteArray array3 = savefileName.toLocal8Bit();
+        char* savefileNamefromqs_c = array3.data();
+        qDebug() << "-----conc()----------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs_c << "  ///  "<< array3;
+
+    //
+
+
+
+     QString savePathName = ui->plainTextEdit->toPlainText();
+
+     //if empty...
+
+
+QList<QString>  files;
+QList<QString>  filenames;
+
+
+     QDirIterator it(savePathName, {"*.*"}, QDir::Files);
+     while (it.hasNext())
+     {
+         //qDebug() << "it--------------" << it.next();
+         files.append(it.next());
+
+         //
+         QFileInfo fileInfo(it.fileName());
+         QString filename(fileInfo.fileName());
+         qDebug() << "it--- filename  -----------" <<  filename;
+         filenames.append(filename);
+     }
+
+      qDebug() << "it--LIST------------" << files;
+     files.sort();
+     filenames.sort();
+       qDebug() << "it--LIST----sort--------" << files;
+       int dsize = files.size();
+        qDebug() << "it--LIST----size-----" << dsize;
+
+        //int to char
+        int sizetochar= dsize ;
+
+        std::string s = std::to_string(sizetochar);
+        char const *size_c = s.c_str();
+
+//*****
+//        if((pname=="")||(fname=="")||(dsize==0)||(QFileInfo(savefileName).exists()))
+
+//       {
+//            QMessageBox msgBox;
+//            msgBox.setText("Error: File/File Name or Path Error.");
+//            msgBox.exec();
+//        }
+    //---------
+        if((pname=="")||(fname==""))
+
+       {
+            QMessageBox msgBox;
+            msgBox.setText("Error: File name or path name missing.");
+            msgBox.exec();
+        }
+
+       else if((dsize==0))
+
+       {
+            QMessageBox msgBox;
+            msgBox.setText("Error: Empty folder.");
+            msgBox.exec();
+        }
+
+        else if((QFileInfo(savefileName).exists()))
+
+       {
+            QMessageBox msgBox;
+            msgBox.setText("Error: File name already exists.");
+            msgBox.exec();
+        }
+
+
+
+
+  //----------
+
+         else
+        {
+
+
+
+
+        //--
+
+
+QString filesasstring = "";
+
+        for (int i = 0; i < files.size(); ++i)
+           {
+
+            if((files.at(i))!="")
+            {
+            qDebug() << i << "   it--LIST----AT----" << files.at(i);
+            //filesasstring=filesasstring + "\n" + files.at(i);
+            QString s = QString::number(i+1);
+             filesasstring=filesasstring + "\n" + s + ": " + files.at(i);
+
+            }
+
+           // filesasstring=filesasstring + "\n" + files.at(i);
+
+        }
+
+        //
+
+        QString filenamesasstring = "";
+
+                for (int i = 0; i < files.size(); ++i)
+                   {
+
+                    if((files.at(i))!="")
+                    {
+                    qDebug() << i << "   it--LIST----AT----" << filenames.at(i);
+                    //filesasstring=filesasstring + "\n" + files.at(i);
+                    QString s = QString::number(i+1);
+                     filenamesasstring=filenamesasstring + " --> " + s + ": " + filenames.at(i);
+                     // filenamesasstring=filenamesasstring + "\n" + s + ": " + filenames.at(i);
+
+                    }
+
+                   // filesasstring=filesasstring + "\n" + files.at(i);
+
+                }
+
+
+
+        QMessageBox msgBox;
+        msgBox.setStyleSheet("QLabel{min-width: 700px;}");
+        msgBox.setText("Create sequence?");
+        msgBox.setInformativeText(filenamesasstring);
+        msgBox.setDetailedText(filesasstring);
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Save);
+        int ret = msgBox.exec();
+
+
+        switch (ret)
+        {
+          case QMessageBox::Save:
+                 qDebug() << "   Save was clicked" ;
+
+                 //start "   Save was clicked"
+
+
+                 ui->statusBar->showMessage("Please wait...");
+
+
+
+              //--------------
+
+                  char result[50000];
+
+                  strcpy(result,"ffmpeg -y");
+
+                  /*
+
+                  for (int i = 0; i < files.size(); ++i)
+                     {
+
+                      if((files.at(i))!="")
+                      {
+                      QString clippath= files.at(i);
+
+                      QByteArray array4 = clippath.toLocal8Bit();
+                      char* clipfileNamefromqs_c = array4.data();
+
+                      strcat(result," -i '");
+                      strcat(result,clipfileNamefromqs_c);
+                      strcat(result,"'");
+
+                        qDebug() << i << "   clipfileNamefromqs_c--" << clipfileNamefromqs_c;
+
+                      }
+
+                  }
+
+                  strcat(result," -filter_complex concat=n=");
+                  //strcat(result,"2");
+                  strcat(result,size_c);
+                  strcat(result,":v=1:a=1 -c:v libx264 -preset veryfast -crf 15  '");
+                  //strcat(result,"/home/debian9/000000GNU_ViT_Test/Output_02.mp4");
+                  strcat(result,savefileNamefromqs_c);
+                  strcat(result,"'");
+
+
+                    */
+
+                  //win11
+
+
+
+
+                  for (int i = 0; i < files.size(); ++i)
+                  {
+
+                      if((files.at(i))!="")
+                      {
+                          QString clippath= files.at(i);
+
+                          QByteArray array4 = clippath.toLocal8Bit();
+                          char* clipfileNamefromqs_c = array4.data();
+
+                          strcat(result," -i \"");
+                          strcat(result,clipfileNamefromqs_c);
+                          strcat(result,"\"");
+
+                          qDebug() << i << "   clipfileNamefromqs_c--" << clipfileNamefromqs_c;
+
+                      }
+
+                  }
+
+                  strcat(result," -filter_complex concat=n=");
+                  //strcat(result,"2");
+                  strcat(result,size_c);
+                  strcat(result,":v=1:a=1 -c:v libx264 -preset veryfast -crf 15  \"");
+                  //strcat(result,"/home/debian9/000000GNU_ViT_Test/Output_02.mp4");
+                  strcat(result,savefileNamefromqs_c);
+                  strcat(result,"\"");
+
+
+
+                  //end wind11
+
+
+
+
+
+
+                  qDebug() << "-------------------result--------------- " << result;
+
+
+              //if(system("ffmpeg -i '/home/debian9/BlenderProjects/millie01/00001_cutmilliesecVAR22.MTS' -i '/home/debian9/BlenderProjects/millie01/00001_cutmilliesecVAR23.MTS' -filter_complex concat=n=2:v=1:a=1 -c:v libx264 -preset veryfast -crf 15  '/home/debian9/BlenderProjects/millie01/output2222_555.mp4'") != 0)
+
+                  //if(system(0) != 0)
+                   if(system(result) != 0)
+                  {
+                      qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                      ui->statusBar->showMessage("");
+                      QMessageBox msgBox;
+                      msgBox.setText("Error: ffmpeg failed.");
+                      msgBox.exec();
+                  }
+                  else
+                  {
+                      ui->statusBar->showMessage("");
+                      QMessageBox msgBox;
+                      msgBox.setText("File saved.");
+                      msgBox.exec();
+                  }
+
+                 //end "   Save was clicked"
+
+              break;
+
+          case QMessageBox::Cancel:
+              // Cancel was clicked
+              break;
+          default:
+              // should never be reached
+              break;
+        }
+
+//--------------
+
+}
+
+}
+//win11 end
+
+
+//-jpgs win11
+void MainWindow::jpgsprint()
+{
+
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    //QString fname = ui->plainTextEdit_2->toPlainText();
+    //QString savefileName = pname + "/" + fname;
+
+    //name of saved file
+        //QByteArray array3 = savefileName.toLocal8Bit();
+        //char* savefileNamefromqs_c = array3.data();
+        //qDebug() << "-----conc()----------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs_c << "  ///  "<< array3;
+
+    //
+
+
+
+     QString savePathName = ui->plainTextEdit->toPlainText();
+
+     //if empty...
+
+
+QList<QString>  files;
+QList<QString>  filenames;
+
+
+     QDirIterator it(savePathName, {"*.*"}, QDir::Files);
+     while (it.hasNext())
+     {
+         //qDebug() << "it--------------" << it.next();
+         files.append(it.next());
+
+         //
+         QFileInfo fileInfo(it.fileName());
+         QString filename(fileInfo.fileName());
+         qDebug() << "it--- filename  -----------" <<  filename;
+         filenames.append(filename);
+     }
+
+      qDebug() << "it--LIST------------" << files;
+     files.sort();
+     filenames.sort();
+       qDebug() << "it--LIST----sort--------" << files;
+       int dsize = files.size();
+        qDebug() << "it--LIST----size-----" << dsize;
+
+        //int to char
+        int sizetochar= dsize ;
+
+        std::string s = std::to_string(sizetochar);
+        char const *size_c = s.c_str();
+
+//*****
+//        if((pname=="")||(fname=="")||(dsize==0)||(QFileInfo(savefileName).exists()))
+
+//       {
+//            QMessageBox msgBox;
+//            msgBox.setText("Error: File/File Name or Path Error.");
+//            msgBox.exec();
+//        }
+    //---------
+        //if((pname=="")||(fname==""))
+        if(pname=="")
+
+       {
+            QMessageBox msgBox;
+            msgBox.setText("Error: File name or path name missing.");
+            msgBox.exec();
+        }
+
+       else if((dsize==0))
+
+       {
+            QMessageBox msgBox;
+            msgBox.setText("Error: Empty folder.");
+            msgBox.exec();
+        }
+
+
+
+
+
+
+  //----------
+
+         else
+        {
+
+
+
+
+        //--
+
+
+        QString filesasstring = "";
+
+        for (int i = 0; i < files.size(); ++i)
+           {
+
+            if((files.at(i))!="")
+            {
+            qDebug() << i << "   it--LIST----AT----" << files.at(i);
+            //filesasstring=filesasstring + "\n" + files.at(i);
+            QString s = QString::number(i+1);
+             filesasstring=filesasstring + "\n" + s + ": " + files.at(i);
+
+            }
+
+           // filesasstring=filesasstring + "\n" + files.at(i);
+
+        }
+
+        //
+
+        QString filenamesasstring = "";
+
+                for (int i = 0; i < files.size(); ++i)
+                   {
+
+                    if((files.at(i))!="")
+                    {
+                    qDebug() << i << "   it--LIST----AT----" << filenames.at(i);
+                    //filesasstring=filesasstring + "\n" + files.at(i);
+                    QString s = QString::number(i+1);
+                     filenamesasstring=filenamesasstring + "     " + s + ": " + filenames.at(i);
+                     // filenamesasstring=filenamesasstring + "\n" + s + ": " + filenames.at(i);
+
+                    }
+
+                   // filesasstring=filesasstring + "\n" + files.at(i);
+
+                }
+
+
+
+        QMessageBox msgBox;
+        msgBox.setStyleSheet("QLabel{min-width: 700px;}");
+        msgBox.setText("Convert?");
+        msgBox.setInformativeText(filenamesasstring);
+        msgBox.setDetailedText(filesasstring);
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Save);
+        int ret = msgBox.exec();
+
+
+        switch (ret)
+        {
+          case QMessageBox::Save:
+                 qDebug() << "   Save was clicked" ;
+
+                 //start "   Save was clicked"
+
+
+                 ui->statusBar->showMessage("Please wait...");
+
+
+
+              //--------------
+
+
+
+
+//ffmpeg -i P1060253.JPG -q:v 1 -vf "scale=4592:3064:force_original_aspect_ratio=decrease,pad=4592:3064:(ow-iw)/2:(oh-ih)/2:color=White" OUTPP1060253Lhigh.JPG
+
+                  for (int i = 0; i < files.size(); ++i)
+                     {
+
+                      if((files.at(i))!="")
+                      {
+
+                          char result[50000];
+
+
+                          strcpy(result,"ffmpeg -y");
+
+
+                      QString clippath= files.at(i);
+                      QString jname= filenames.at(i);
+
+                      QByteArray array4 = clippath.toLocal8Bit();
+                      char* clipfileNamefromqs_c = array4.data();
+
+                      QByteArray array5 = jname.toLocal8Bit();
+                      char* jNamefromqs_c = array5.data();
+
+                      QByteArray array6 =  savePathName.toLocal8Bit();
+                      char*  savePathNamefromqs_c = array6.data();
+
+
+                      strcat(result," -i ");
+                      strcat(result,clipfileNamefromqs_c);
+                      strcat(result," -q:v 1 -vf \"scale=4592:3064:force_original_aspect_ratio=decrease,pad=4592:3064:(ow-iw)/2:(oh-ih)/2:color=White\" ");
+                      strcat(result,savePathNamefromqs_c);
+                      strcat(result,"/OUT_GV_");
+                      strcat(result,jNamefromqs_c);
+                      qDebug() << i << "   clipfileNamefromqs_c--" << clipfileNamefromqs_c;
+                      qDebug() << i << "   savePathNamefromqs_c--" << savePathNamefromqs_c;
+                      qDebug() << i << "   jNamefromqs_c--" << jNamefromqs_c;
+
+
+
+
+
+
+
+
+
+                  qDebug() << "-------------------result--------------- " << result;
+
+
+
+
+                  //if(system(0) != 0)
+                   if(system(result) != 0)
+                  {
+                      qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                      ui->statusBar->showMessage("");
+                      QMessageBox msgBox;
+                      msgBox.setText("Error: ffmpeg failed.");
+                      msgBox.exec();
+                  }
+
+                   /*
+                  else
+                  {
+                      ui->statusBar->showMessage("");
+                      QMessageBox msgBox;
+                      msgBox.setText("File(s) saved.");
+                      msgBox.exec();
+                  }
+
+                  */
+
+                 //end "   Save was clicked"
+
+                      }
+
+                  }
+
+              break;
+
+          case QMessageBox::Cancel:
+              // Cancel was clicked
+              break;
+          default:
+              // should never be reached
+              break;
+        }
+
+//--------------
+
+}
+
+
+}
+//-jpgs END
+
+
+
+
+void MainWindow::ffprobe_linux()
 {
 
 
@@ -985,6 +1699,93 @@ void MainWindow::ffprobe()
 
 
 }
+
+
+
+//win11
+void MainWindow::ffprobe()
+{
+
+
+    QByteArray array;
+    char* filePathfromqs;
+
+    QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+    QProcess process;
+
+    if(vvfilePath!="")
+    {
+
+
+
+
+        ui->statusBar->showMessage("Saving txt...");
+
+
+     array = vvfilePath.toLocal8Bit();
+     filePathfromqs = array.data();
+     qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+       //QString aCommand = "ffprobe -show_streams -show_format '" + vvfilePath + "'";
+       //ffprobe -show_streams -show_format "OUTP1060252.JPG" > output.txt 2>&1
+
+
+     //win11
+     char result[50000];
+
+             strcpy(result,"ffprobe -show_streams -show_format \"");
+             strcat(result,filePathfromqs);
+              //strcat(result,"\" > output.txt 2>&1");
+              strcat(result,"\" > ");
+              strcat(result,filePathfromqs);
+              strcat(result,".txt 2>&1");
+               //strcat(result,savefileNamefromqs);
+                //strcat(result,"\"");
+
+              qDebug() << "-------------------result--------------- " << result;
+
+
+
+             //if(system(0) != 0)
+              if(system(result) != 0)
+             {
+                 qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+                 ui->statusBar->showMessage("");
+                 QMessageBox msgBox;
+                 msgBox.setText("Error: ffmpeg failed.");
+                 msgBox.exec();
+             }
+             else
+             {
+                 ui->statusBar->showMessage("");
+                 QMessageBox msgBox;
+                 msgBox.setText("File saved.");
+                 msgBox.exec();
+             }
+
+
+
+
+
+
+
+
+
+}
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Error.");
+        msgBox.exec();
+    }
+
+
+
+
+}
+
 
 
 
@@ -1064,6 +1865,8 @@ void MainWindow::openpng()
 
 }
 
+
+//win11
 void MainWindow::to24fps()
 {
 
@@ -1119,11 +1922,24 @@ void MainWindow::to24fps()
 
     char result[50000];
 
+ /*
      strcpy(result,"ffmpeg -y -i '");
      strcat(result,filePathfromqs);
       strcat(result,"' -r 24000/1001 -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
        strcat(result,savefileNamefromqs);
         strcat(result,"'");
+*/
+
+
+   //win11
+
+
+        strcpy(result,"ffmpeg -y -i \"");
+        strcat(result,filePathfromqs);
+         strcat(result,"\" -r 24000/1001 -c:v libx264 -preset veryfast -crf 15 -c:a copy \"");
+          strcat(result,savefileNamefromqs);
+           strcat(result,"\"");
+
 
 
          qDebug() << "-------------------result--------------- " << result;
@@ -1154,6 +1970,7 @@ void MainWindow::to24fps()
 
 }
 
+//win11
 void MainWindow::to30fps()
 {
 
@@ -1208,12 +2025,22 @@ void MainWindow::to30fps()
 
 
     char result[50000];
-
+/*
      strcpy(result,"ffmpeg -y -i '");
      strcat(result,filePathfromqs);
       strcat(result,"' -r 30000/1001 -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
        strcat(result,savefileNamefromqs);
         strcat(result,"'");
+*/
+
+
+  //win11
+
+        strcpy(result,"ffmpeg -y -i \"");
+        strcat(result,filePathfromqs);
+         strcat(result,"\" -r 30000/1001 -c:v libx264 -preset veryfast -crf 15 -c:a copy \"");
+          strcat(result,savefileNamefromqs);
+           strcat(result,"\"");
 
 
          qDebug() << "-------------------result--------------- " << result;
@@ -1242,6 +2069,7 @@ void MainWindow::to30fps()
 
 }
 
+//win11
 void MainWindow::to60fps()
 {
 
@@ -1297,11 +2125,23 @@ void MainWindow::to60fps()
 
     char result[50000];
 
+/*
      strcpy(result,"ffmpeg -y -i '");
      strcat(result,filePathfromqs);
       strcat(result,"' -r 60000/1001 -c:v libx264 -preset veryfast -crf 15 -c:a copy '");
        strcat(result,savefileNamefromqs);
         strcat(result,"'");
+*/
+
+
+//win11
+
+        strcpy(result,"ffmpeg -y -i \"");
+        strcat(result,filePathfromqs);
+         strcat(result,"\" -r 60000/1001 -c:v libx264 -preset veryfast -crf 15 -c:a copy \"");
+          strcat(result,savefileNamefromqs);
+           strcat(result,"\"");
+
 
 
          qDebug() << "-------------------result--------------- " << result;
@@ -1330,9 +2170,11 @@ void MainWindow::to60fps()
 
 }
 
+
+
 //mft to 4k
 
-
+//win11
 void MainWindow::con43_4k()
 {
 
@@ -1392,7 +2234,10 @@ void MainWindow::con43_4k()
 
      strcpy(result,"ffmpeg -y -i ");
      strcat(result,filePathfromqs);
-      strcat(result," -vf 'scale=3840:2160:force_original_aspect_ratio=decrease,pad=3840:2160:-1:-1:color=black' ");
+
+     //strcat(result," -vf 'scale=3840:2160:force_original_aspect_ratio=decrease,pad=3840:2160:-1:-1:color=black' ");
+     //win11
+     strcat(result," -vf \"scale=3840:2160:force_original_aspect_ratio=decrease,pad=3840:2160:-1:-1:color=black\" ");
        strcat(result,savefileNamefromqs);
         //strcat(result,"'");
 
@@ -1488,6 +2333,210 @@ void MainWindow::con43_FHD()
 
      strcpy(result,"ffmpeg -y -i ");
      strcat(result,filePathfromqs);
+
+
+
+     //strcat(result," -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:-1:-1:color=black' ");
+     //win11
+     strcat(result," -vf  \"scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:-1:-1:color=black\" ");
+
+       strcat(result,savefileNamefromqs);
+        //strcat(result,"'");
+
+
+         qDebug() << "-------------------result--------------- " << result;
+
+
+
+        //if(system(0) != 0)
+         if(system(result) != 0)
+        {
+            qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("Error: ffmpeg failed.");
+            msgBox.exec();
+        }
+        else
+        {
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("File saved.");
+            msgBox.exec();
+        }
+
+}
+
+}
+
+
+
+//mft to FHD END
+
+
+//win11 end
+
+
+
+//mft to 4k
+
+
+void MainWindow::con43_4k_linux()
+{
+
+    QByteArray array;
+    char* filePathfromqs;
+
+       // qDebug() << "--------------filePath---------- " << filePath;
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+
+     QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+     qDebug() << "-------savefileName------- " << savefileName ;
+
+    if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+   {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Name/Path Error.");
+        msgBox.exec();
+    }
+
+
+
+     else
+    {
+
+
+         // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+           ui->statusBar->showMessage("Please wait...");
+
+    //original file
+        array = vvfilePath.toLocal8Bit();
+        filePathfromqs = array.data();
+        qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+     //name of saved file
+         QByteArray array2 = savefileName.toLocal8Bit();
+         char* savefileNamefromqs = array2.data();
+         qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+    char result[50000];
+
+    //ffmpeg -i P1060024.MP4 -vf "scale=3840:2160:force_original_aspect_ratio=decrease,pad=3840:2160:-1:-1:color=black" 4koutputP1060024.MP4
+
+     strcpy(result,"ffmpeg -y -i ");
+     strcat(result,filePathfromqs);
+      strcat(result," -vf 'scale=3840:2160:force_original_aspect_ratio=decrease,pad=3840:2160:-1:-1:color=black' ");
+       strcat(result,savefileNamefromqs);
+        //strcat(result,"'");
+
+
+         qDebug() << "-------------------result--------------- " << result;
+
+
+
+        //if(system(0) != 0)
+         if(system(result) != 0)
+        {
+            qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("Error: ffmpeg failed.");
+            msgBox.exec();
+        }
+        else
+        {
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("File saved.");
+            msgBox.exec();
+        }
+
+}
+
+}
+
+
+//mft to 4k END
+
+
+//mft to FHD
+
+void MainWindow::con43_FHD_linux()
+{
+
+    QByteArray array;
+    char* filePathfromqs;
+
+       // qDebug() << "--------------filePath---------- " << filePath;
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+
+     QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+
+
+     qDebug() << "-------savefileName------- " << savefileName ;
+
+    if((pname=="")||(fname=="")||(vvfilePath=="")||(QFileInfo(savefileName).exists()))
+
+   {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Name/Path Error.");
+        msgBox.exec();
+    }
+
+
+
+     else
+    {
+
+
+         // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+           ui->statusBar->showMessage("Please wait...");
+
+    //original file
+        array = vvfilePath.toLocal8Bit();
+        filePathfromqs = array.data();
+        qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+     //name of saved file
+         QByteArray array2 = savefileName.toLocal8Bit();
+         char* savefileNamefromqs = array2.data();
+         qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+    char result[50000];
+
+    //ffmpeg -i P1060024.MP4 -vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:-1:-1:color=black" FHDoutputP1060024.MP4
+
+     strcpy(result,"ffmpeg -y -i ");
+     strcat(result,filePathfromqs);
       strcat(result," -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:-1:-1:color=black' ");
        strcat(result,savefileNamefromqs);
         //strcat(result,"'");
@@ -1523,6 +2572,8 @@ void MainWindow::con43_FHD()
 
 //mft to FHD END
 
+
+//win11
 void MainWindow::towav()
 {
 
@@ -1576,14 +2627,25 @@ void MainWindow::towav()
 
 
     char result[50000];
-
+/*
      strcpy(result,"ffmpeg -y -i '");
      strcat(result,filePathfromqs);
       strcat(result,"' -q:a 0 -map a '");
        strcat(result,savefileNamefromqs);
         strcat(result,"'");
-
+*/
         //ffmpeg -i 00001.MTS -q:a 0 -map a audioexport01.wav
+
+
+ //win11
+
+
+        strcpy(result,"ffmpeg -y -i \"");
+        strcat(result,filePathfromqs);
+         strcat(result,"\" -q:a 0 -map a \"");
+          strcat(result,savefileNamefromqs);
+           strcat(result,"\"");
+
 
 
          qDebug() << "-------------------result--------------- " << result;
@@ -1612,6 +2674,8 @@ void MainWindow::towav()
 
 }
 
+
+//win11
 void MainWindow::tofullhd()
 {
 
@@ -1666,14 +2730,23 @@ void MainWindow::tofullhd()
 
 
     char result[50000];
-
+/*
      strcpy(result,"ffmpeg -y -i '");
      strcat(result,filePathfromqs);
       strcat(result,"' -vf scale=1920:1080:flags=lanczos,setsar=1 -c:v libx264 -crf 15 -preset veryfast -c:a copy '");
        strcat(result,savefileNamefromqs);
         strcat(result,"'");
-
+*/
        // ffmpeg -y -i MAH00642.MP4 -vf "scale=1920:1080:flags=lanczos,setsar=1" -c:v libx264 -crf 15 -preset veryfast -c:a copy MAH00642_1920crf15.MP4
+
+//win11
+
+
+        strcpy(result,"ffmpeg -y -i \"");
+        strcat(result,filePathfromqs);
+         strcat(result,"\" -vf scale=1920:1080:flags=lanczos,setsar=1 -c:v libx264 -crf 15 -preset veryfast -c:a copy \"");
+          strcat(result,savefileNamefromqs);
+           strcat(result,"\"");
 
 
          qDebug() << "-------------------result--------------- " << result;
@@ -1709,7 +2782,7 @@ void MainWindow::tofullhd()
 
 //to4K
 
-
+//win11
 void MainWindow::to4K()
 {
 
@@ -1764,14 +2837,24 @@ void MainWindow::to4K()
 
 
     char result[50000];
-
+/*
      strcpy(result,"ffmpeg -y -i '");
      strcat(result,filePathfromqs);
       strcat(result,"' -vf scale=3840:2160:flags=lanczos,setsar=1 -c:v libx264 -crf 15 -preset veryfast -c:a copy '");
        strcat(result,savefileNamefromqs);
         strcat(result,"'");
-
+*/
        // ffmpeg -y -i MAH00642.MP4 -vf "scale=1920:1080:flags=lanczos,setsar=1" -c:v libx264 -crf 15 -preset veryfast -c:a copy MAH00642_1920crf15.MP4
+
+//win11
+
+
+        strcpy(result,"ffmpeg -y -i \"");
+        strcat(result,filePathfromqs);
+         strcat(result,"\" -vf scale=3840:2160:flags=lanczos,setsar=1 -c:v libx264 -crf 15 -preset veryfast -c:a copy \"");
+          strcat(result,savefileNamefromqs);
+           strcat(result,"\"");
+
 
 
          qDebug() << "-------------------result--------------- " << result;
@@ -1808,7 +2891,7 @@ void MainWindow::to4K()
 
 //end to4K
 
-
+//win11
 void MainWindow::tomp4aac()
 {
 
@@ -1864,18 +2947,23 @@ void MainWindow::tomp4aac()
 
 
     char result[50000];
-
+/*
      strcpy(result,"ffmpeg -y -i '");
      strcat(result,filePathfromqs);
       strcat(result,"' -c:v libx264 -crf 15 -preset veryfast -c:a aac '");
        strcat(result,savefileNamefromqs);
         strcat(result,"'");
-
+*/
      //  convert video+audio: -c:v libx264 -crf 15 -preset veryfast -c:a aac
      //just audio (sync issues?):  -c copy -c:a aac
 
 
-
+//win11
+        strcpy(result,"ffmpeg -y -i \"");
+        strcat(result,filePathfromqs);
+         strcat(result,"\" -c:v libx264 -crf 15 -preset veryfast -c:a aac \"");
+          strcat(result,savefileNamefromqs);
+           strcat(result,"\"");
 
          qDebug() << "-------------------result--------------- " << result;
 
@@ -1907,7 +2995,7 @@ void MainWindow::tomp4aac()
 
 }
 
-void MainWindow::replaceaudio()
+void MainWindow::replaceaudio_linux()
 {
 
 
@@ -2011,7 +3099,7 @@ void MainWindow::replaceaudio()
 
 }
 
-void MainWindow::titles()
+void MainWindow::titles_linux()
 {
 
 
@@ -2145,6 +3233,291 @@ void MainWindow::titles()
 
 
 }
+
+
+
+
+
+//win11
+void MainWindow::replaceaudio()
+{
+
+
+    QByteArray array;
+    char* filePathfromqs;
+
+        //qDebug() << "--------------filePath---------- " << filePath;
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+
+     QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+     QString wavname = ui->plainTextEdit_wav->toPlainText();
+
+
+     qDebug() << "-------savefileName------- " << savefileName ;
+
+    if((pname=="")||(fname=="")||(vvfilePath=="")||(wavname=="")||(QFileInfo(savefileName).exists()))
+
+   {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Name/Path Error.");
+        msgBox.exec();
+    }
+
+
+
+     else
+    {
+
+
+         // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+           ui->statusBar->showMessage("Please wait...");
+
+    //original file
+        array = vvfilePath.toLocal8Bit();
+        filePathfromqs = array.data();
+        qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+     //name of saved file
+         QByteArray array2 = savefileName.toLocal8Bit();
+         char* savefileNamefromqs = array2.data();
+         qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+         //name of input wav
+             QByteArray array3 = wavname.toLocal8Bit();
+             char* wavfilePathfromqs = array3.data();
+             qDebug() << "---------------wavfilePathfromqs---------- " << wavname << "  ---  "  << wavfilePathfromqs << "  ///  "<< array3;
+
+    char result[50000];
+/*
+     strcpy(result,"ffmpeg -y -i '");
+     strcat(result,filePathfromqs);
+      strcat(result,"' -i '");
+     strcat(result,wavfilePathfromqs);
+      strcat(result,"' -c copy -map 0:v:0 -map 1:a:0 '");
+       strcat(result,savefileNamefromqs);
+        strcat(result,"'");
+
+ */
+
+        //win11
+
+
+        strcpy(result,"ffmpeg -y -i \"");
+        strcat(result,filePathfromqs);
+        strcat(result,"\" -i \"");
+        strcat(result,wavfilePathfromqs);
+        strcat(result,"\" -c copy -map 0:v:0 -map 1:a:0 \"");
+        strcat(result,savefileNamefromqs);
+        strcat(result,"\"");
+
+
+
+        //win11 end
+  //ffmpeg -y -i mkv.mkv -i S06BlackKnightV3.wav -c copy -map 0:v:0 -map 1:a:0 output_wav_sound.mkv
+
+
+
+
+         qDebug() << "-------------------result--------------- " << result;
+
+
+
+        //if(system(0) != 0)
+         if(system(result) != 0)
+        {
+            qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("Error: ffmpeg failed.");
+            msgBox.exec();
+        }
+        else
+        {
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("File saved.");
+            msgBox.exec();
+        }
+
+}
+
+
+
+
+}
+
+void MainWindow::titles()
+{
+
+
+
+    QByteArray array;
+    char* filePathfromqs;
+
+        //qDebug() << "--------------filePath---------- " << filePath;
+
+    QString pname = ui->plainTextEdit->toPlainText();
+    QString fname = ui->plainTextEdit_2->toPlainText();
+    QString savefileName = pname + "/" + fname;
+
+     QString vvfilePath = ui->plainTextEdit_3->toPlainText();
+     QString pngname = ui->plainTextEdit_png->toPlainText();
+
+
+     qDebug() << "-------savefileName------- " << savefileName ;
+
+    if((pname=="")||(fname=="")||(vvfilePath=="")||(pngname=="")||(iposend<iposstart)||(iposend==iposstart)||(QFileInfo(savefileName).exists()))
+
+   {
+        QMessageBox msgBox;
+        msgBox.setText("Error: File Name/Path or Start/End Point Error.");
+        msgBox.exec();
+    }
+
+
+
+     else
+    {
+
+
+         // savefileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+
+
+
+           ui->statusBar->showMessage("Please wait...");
+
+    //original file
+        array = vvfilePath.toLocal8Bit();
+        filePathfromqs = array.data();
+        qDebug() << "---------------filePathfromqs---------- " << vvfilePath << "  ---  "  << filePathfromqs << "  ///  "<< array;
+
+
+
+
+
+     //name of saved file
+         QByteArray array2 = savefileName.toLocal8Bit();
+         char* savefileNamefromqs = array2.data();
+         qDebug() << "---------------filePathfromqs---------- " << savefileName << "  ---  "  << savefileNamefromqs << "  ///  "<< array2;
+
+
+
+         //name of input png
+             QByteArray array3 = pngname.toLocal8Bit();
+             char* pngfilePathfromqs = array3.data();
+             qDebug() << "---------------pngfilePathfromqs---------- " << pngname << "  ---  "  << pngfilePathfromqs << "  ///  "<< array3;
+
+
+             //STARTPOINT
+                   //float secpos= (iposstart*60);
+                   float secpos= iposstart;
+                    qDebug() << "-------------float secpos= (iposstart*60); ---------- " << secpos ;
+                 //format in seconds.ms (3 digits ms)
+                    std::stringstream stream;
+                    stream << std::fixed << std::setprecision(3) << secpos;
+                    std::string str = stream.str();
+                const char* startvar = str.c_str();
+                 qDebug() << "----------iiiiiiiiii--------startvar----------- " << startvar;
+
+
+             //ENDPOINT
+                 float secposend= iposend ;
+                  qDebug() << "-------------float secposend---------- " << secposend ;
+               //format in seconds.ms (3 digits ms)
+                  std::stringstream stream2;
+                  stream2 << std::fixed << std::setprecision(3) << secposend;
+                  std::string str2 = stream2.str();
+              const char* endvar = str2.c_str();
+             qDebug() << "------------------endvar-------------- " << endvar;
+
+
+    char result[50000];
+/*
+     strcpy(result,"ffmpeg -y -i '");
+     strcat(result,filePathfromqs);
+      strcat(result,"' -i '");
+     strcat(result,pngfilePathfromqs);
+      strcat(result,"' -filter_complex \"[0:v][1:v] overlay=25:25:enable='between(t,");
+      strcat(result,startvar);
+      strcat(result,",");
+      strcat(result,endvar);
+      strcat(result,")'\" -pix_fmt yuv420p -c:a copy '");
+       strcat(result,savefileNamefromqs);
+        strcat(result,"'");
+
+*/
+
+        //wind11
+
+
+
+        strcpy(result,"ffmpeg -y -i \"");
+        strcat(result,filePathfromqs);
+        strcat(result,"\" -i \"");
+        strcat(result,pngfilePathfromqs);
+        //strcat(result,"\" -filter_complex \"[0:v][1:v] overlay=25:25:enable=\"between(t,");
+        strcat(result,"\" -filter_complex \"[0:v][1:v] overlay=25:25:enable='between(t,");
+        strcat(result,startvar);
+        strcat(result,",");
+        strcat(result,endvar);
+        //strcat(result,")\"\" -pix_fmt yuv420p -c:a copy \"");
+        strcat(result,")'\" -pix_fmt yuv420p -c:a copy \"");
+
+        strcat(result,savefileNamefromqs);
+        strcat(result,"\"");
+
+
+
+        //win11 end
+
+        //QString sf="ffmpeg -y -i mkv.mkv -i title.png -filter_complex \"[0:v][1:v] overlay=25:25:enable='between(t,1.234,3.543)'\" -pix_fmt yuv420p -c:a copy outps33.mkv";
+
+
+
+         qDebug() << "-------------------result--------------- " << result;
+
+
+
+        //if(system(0) != 0)
+         if(system(result) != 0)
+        {
+            qDebug() << "+++++++++++++++++++++++++++++++++++++++++++++++++++ffmpeg failed..." << endl;
+
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("Error: ffmpeg failed.");
+            msgBox.exec();
+        }
+        else
+        {
+            ui->statusBar->showMessage("");
+            QMessageBox msgBox;
+            msgBox.setText("File saved.");
+            msgBox.exec();
+        }
+
+}
+
+
+
+
+
+}
+
+//wind11 end
 
 
 

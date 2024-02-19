@@ -724,37 +724,17 @@
     <addaction name="actionVideo"/>
     <addaction name="actionPNG"/>
     <addaction name="actionWav"/>
-    <addaction name="actionFfprobe"/>
     <addaction name="actionHelp"/>
    </widget>
    <widget class="QMenu" name="menuVideo">
     <property name="title">
      <string>Save</string>
     </property>
-    <widget class="QMenu" name="menuCrop">
-     <property name="title">
-      <string>Crop (FHD)</string>
-     </property>
-     <addaction name="actionFrom_bottom_right"/>
-     <addaction name="actionCrop_from_bottom_left"/>
-     <addaction name="actionCrop_from_top_right"/>
-     <addaction name="actionFrom_top_left"/>
-    </widget>
-    <widget class="QMenu" name="menuCrop_UHD">
-     <property name="title">
-      <string>Crop (UHD)</string>
-     </property>
-     <addaction name="action4KCrop_from_bottom_right"/>
-     <addaction name="action4KCrop_from_bottom_left"/>
-     <addaction name="action4KCrop_from_top_right"/>
-     <addaction name="action4KCrop_from_top_left"/>
-    </widget>
     <addaction name="actionCut"/>
     <addaction name="actionSequnece"/>
-    <addaction name="menuCrop"/>
-    <addaction name="menuCrop_UHD"/>
     <addaction name="actionVideo_Audio"/>
     <addaction name="actionVideo_PNG"/>
+    <addaction name="actionMeta_data_txt"/>
    </widget>
    <widget class="QMenu" name="menuConvert">
     <property name="title">
@@ -763,13 +743,12 @@
     <addaction name="action24000_1001"/>
     <addaction name="action30000_1001"/>
     <addaction name="action60000_1001"/>
-    <addaction name="action_Slow_Motion"/>
     <addaction name="action1920_1080"/>
     <addaction name="action_3840_2160p"/>
-    <addaction name="actionMkv_PCM_mp4_aac"/>
     <addaction name="actionVideo_WAV"/>
     <addaction name="action4_3_4K"/>
     <addaction name="action4_3_FHD"/>
+    <addaction name="action4_3_3_2"/>
    </widget>
    <addaction name="menuOpen"/>
    <addaction name="menuVideo"/>
@@ -792,6 +771,9 @@
    </property>
   </action>
   <action name="actionCut">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Cut</string>
    </property>
@@ -804,6 +786,9 @@
   <action name="actionWorking_directory">
    <property name="text">
     <string>Working directory</string>
+   </property>
+   <property name="statusTip">
+    <string/>
    </property>
    <property name="font">
     <font/>
@@ -838,6 +823,9 @@
    <property name="text">
     <string>-&gt; WAV</string>
    </property>
+   <property name="statusTip">
+    <string>Extract audio</string>
+   </property>
   </action>
   <action name="actionHelp">
    <property name="text">
@@ -851,7 +839,7 @@
   </action>
   <action name="actionFfprobe">
    <property name="text">
-    <string>ffprobe</string>
+    <string>Meta data</string>
    </property>
   </action>
   <action name="actionMkv_PCM_mp4_aac">
@@ -924,18 +912,43 @@
   </action>
   <action name="action4_3_4K">
    <property name="text">
-    <string>4:3 -&gt; 4K</string>
+    <string>4:3 -&gt; 4K (Pillarbox)</string>
    </property>
    <property name="toolTip">
     <string>Convert Four Thirds</string>
+   </property>
+   <property name="statusTip">
+    <string>Video</string>
    </property>
   </action>
   <action name="action4_3_FHD">
    <property name="text">
-    <string>4:3 -&gt; FHD</string>
+    <string>4:3 -&gt; FHD (Pillarbox)</string>
    </property>
    <property name="toolTip">
     <string>Convert Four Thirds</string>
+   </property>
+   <property name="statusTip">
+    <string>Video</string>
+   </property>
+  </action>
+  <action name="action4_3_3_2">
+   <property name="text">
+    <string>JPG (Bulk): 4:3 -&gt; 3:2</string>
+   </property>
+   <property name="toolTip">
+    <string>JPG (Bulk): 4:3 -&gt; 3:2</string>
+   </property>
+   <property name="statusTip">
+    <string>JPGs in Working Dir.</string>
+   </property>
+  </action>
+  <action name="actionMeta_data_txt">
+   <property name="text">
+    <string>Meta data txt</string>
+   </property>
+   <property name="statusTip">
+    <string>ffprobe</string>
    </property>
   </action>
  </widget>
@@ -1279,7 +1292,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>actionFfprobe</sender>
+   <sender>actionMeta_data_txt</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>ffprobe()</slot>
@@ -1534,6 +1547,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action4_3_3_2</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jpgsprint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>89</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>openvideo()</slot>
@@ -1577,5 +1606,6 @@
   <slot>crop4Ktopleft()</slot>
   <slot>con43_4k()</slot>
   <slot>con43_FHD()</slot>
+  <slot>jpgsprint()</slot>
  </slots>
 </ui>

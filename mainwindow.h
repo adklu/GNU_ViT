@@ -29,8 +29,10 @@ private slots:
     void slider();
     void slow();
     void cut();
+        void cut_linux();
     void dir();
      void conc();
+          void conc_linux();
      void startgoto();
      void endgoto();
       void openhelp();
@@ -42,9 +44,12 @@ private slots:
          void towav();
           void tofullhd();
           void ffprobe();
+            void ffprobe_linux();
           void tomp4aac();
           void replaceaudio();
           void titles();
+            void replaceaudio_linux();
+            void titles_linux();
           void crop();
            void cropbottomleft();
             void croptopright();
@@ -56,7 +61,10 @@ private slots:
              void crop4Ktopright();
              void crop4Ktopleft();
              void con43_4k();
+                void con43_4k_linux();
              void con43_FHD();
+                void con43_FHD_linux();
+             void jpgsprint();
 
 
 };
